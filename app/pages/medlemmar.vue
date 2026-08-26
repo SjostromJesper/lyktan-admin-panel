@@ -100,9 +100,9 @@ const onMemberDeleted = (id: string) => {
 
 <template>
   <div>
-    <div class="mb-6 flex items-center justify-between">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
       <h1 class="text-xl font-semibold text-lyktan-ink">Medlemmar</h1>
-      <div class="flex gap-3">
+      <div class="flex flex-wrap gap-3">
         <button
           v-if="canViewMembers"
           type="button"

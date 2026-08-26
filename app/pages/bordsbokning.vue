@@ -539,11 +539,11 @@ const onBookingDeleted = () => {
       </template>
 
       <template v-else>
-        <div class="mb-4 flex items-center gap-3">
-          <button type="button" class="rounded-full border border-black/15 px-3 py-1.5 text-sm hover:bg-black/[0.04]" @click="prevWeek">←</button>
-          <button type="button" class="rounded-full border border-black/15 px-4 py-1.5 text-sm hover:bg-black/[0.04]" @click="goToday">Idag</button>
-          <span class="text-sm font-medium text-lyktan-ink">{{ weekRangeLabel }}</span>
-          <button type="button" class="rounded-full border border-black/15 px-3 py-1.5 text-sm hover:bg-black/[0.04]" @click="nextWeek">→</button>
+        <div class="mb-4 flex flex-wrap items-center gap-3">
+          <button type="button" class="shrink-0 rounded-full border border-black/15 px-3 py-1.5 text-sm hover:bg-black/[0.04]" @click="prevWeek">←</button>
+          <button type="button" class="shrink-0 rounded-full border border-black/15 px-4 py-1.5 text-sm hover:bg-black/[0.04]" @click="goToday">Idag</button>
+          <span class="whitespace-nowrap text-sm font-medium text-lyktan-ink">{{ weekRangeLabel }}</span>
+          <button type="button" class="shrink-0 rounded-full border border-black/15 px-3 py-1.5 text-sm hover:bg-black/[0.04]" @click="nextWeek">→</button>
         </div>
 
         <p v-if="calendarLoading" class="text-sm text-lyktan-mute">Laddar…</p>

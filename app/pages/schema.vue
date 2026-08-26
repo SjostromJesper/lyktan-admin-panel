@@ -264,16 +264,16 @@ const deleteShift = async () => {
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <h1 class="text-xl font-semibold text-lyktan-ink">Schema</h1>
 
-      <div class="flex items-center gap-3">
-        <button type="button" class="rounded-full border border-black/15 px-3 py-1.5 text-sm hover:bg-black/[0.04]" @click="prevWeek">←</button>
-        <button type="button" class="rounded-full border border-black/15 px-4 py-1.5 text-sm hover:bg-black/[0.04]" @click="goToday">Idag</button>
-        <span class="text-sm font-medium text-lyktan-ink">{{ weekRangeLabel }}</span>
-        <button type="button" class="rounded-full border border-black/15 px-3 py-1.5 text-sm hover:bg-black/[0.04]" @click="nextWeek">→</button>
+      <div class="flex flex-wrap items-center gap-3">
+        <button type="button" class="shrink-0 rounded-full border border-black/15 px-3 py-1.5 text-sm hover:bg-black/[0.04]" @click="prevWeek">←</button>
+        <button type="button" class="shrink-0 rounded-full border border-black/15 px-4 py-1.5 text-sm hover:bg-black/[0.04]" @click="goToday">Idag</button>
+        <span class="whitespace-nowrap text-sm font-medium text-lyktan-ink">{{ weekRangeLabel }}</span>
+        <button type="button" class="shrink-0 rounded-full border border-black/15 px-3 py-1.5 text-sm hover:bg-black/[0.04]" @click="nextWeek">→</button>
         <button
           v-if="canEditSchedule"
           type="button"
           :disabled="copying"
-          class="rounded-full border border-black/15 px-4 py-1.5 text-sm hover:bg-black/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
+          class="shrink-0 whitespace-nowrap rounded-full border border-black/15 px-4 py-1.5 text-sm hover:bg-black/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
           @click="copyPreviousWeek"
         >
           {{ copying ? 'Kopierar…' : 'Kopiera förra veckan' }}

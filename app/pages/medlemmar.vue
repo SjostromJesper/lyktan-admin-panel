@@ -202,7 +202,19 @@ const onMemberDeleted = (id: string) => {
             class="cursor-pointer border-b border-black/6 last:border-0 hover:bg-black/[0.02]"
             @click="selectedMember = member"
           >
-            <td class="px-4 py-3 font-medium text-lyktan-ink">{{ member.first_name }} {{ member.last_name }}</td>
+            <td class="px-4 py-3 font-medium text-lyktan-ink">
+              <span class="inline-flex items-center gap-2">
+                <span
+                  class="h-2 w-2 shrink-0 rounded-full"
+                  :class="{
+                    green: 'bg-emerald-500',
+                    yellow: 'bg-amber-400',
+                    red: 'bg-red-500'
+                  }[membershipDotColor(member.expiry_date)]"
+                />
+                {{ member.first_name }} {{ member.last_name }}
+              </span>
+            </td>
             <td class="px-4 py-3 text-lyktan-mute">
               <div v-if="member.phone">{{ member.phone }}</div>
               <div v-if="member.email">{{ member.email }}</div>

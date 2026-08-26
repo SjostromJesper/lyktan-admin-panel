@@ -23,3 +23,16 @@ export const membershipStatusLabel = (expiryDate: string | null): string => {
 
   return `${left} dagar kvar`
 }
+
+// green = active member, yellow = expiring within two weeks, red = expired
+// (or never activated).
+const EXPIRING_SOON_DAYS = 14
+
+export const membershipDotColor = (expiryDate: string | null): 'green' | 'yellow' | 'red' => {
+  const left = daysLeft(expiryDate)
+
+  if (left === null || left < 0) return 'red'
+  if (left <= EXPIRING_SOON_DAYS) return 'yellow'
+
+  return 'green'
+}

@@ -64,7 +64,7 @@ const itemsSummary = (items: Order['items']) =>
   <div>
     <h1 class="mb-1 text-xl font-semibold text-lyktan-ink">Webshop-ordrar</h1>
     <p class="mb-6 text-sm text-lyktan-mute">
-      Beställningar från webshoppen, hämtade direkt från Shopify. Bocka av när kunden hämtat.
+      Beställningar från webshoppen, hämtade direkt från Shopify. Markera som levererad när kunden hämtat.
     </p>
 
     <div class="mb-4 flex gap-2 text-sm">
@@ -96,16 +96,26 @@ const itemsSummary = (items: Order['items']) =>
       <table class="w-full min-w-[760px] text-left text-sm">
         <thead>
           <tr class="border-b border-black/8 text-[0.72rem] font-medium text-lyktan-mute">
+            <th v-if="canEditOrders" class="px-4 py-3" />
             <th class="px-4 py-3">Order</th>
             <th class="px-4 py-3">Kund</th>
             <th class="px-4 py-3">Produkter</th>
             <th class="px-4 py-3">Summa</th>
             <th class="px-4 py-3">{{ view === 'active' ? 'Beställd' : 'Avbockad' }}</th>
-            <th v-if="canEditOrders" class="px-4 py-3" />
           </tr>
         </thead>
         <tbody>
           <tr v-for="order in orders" :key="order.id" class="border-b border-black/6 last:border-0">
+            <td v-if="canEditOrders" class="px-4 py-3">
+              <button
+                type="button"
+                :disabled="savingId === order.id"
+                class="rounded-full border border-black/15 px-3 py-1.5 text-[0.8rem] font-medium text-lyktan-ink transition hover:bg-black/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
+                @click="setChecked(order, view === 'active')"
+              >
+                {{ view === 'active' ? 'Levererad' : 'Ångra' }}
+              </button>
+            </td>
             <td class="px-4 py-3 font-medium text-lyktan-ink">{{ order.name }}</td>
             <td class="px-4 py-3 text-lyktan-mute">
               {{ order.customerName || '—' }}
@@ -116,16 +126,6 @@ const itemsSummary = (items: Order['items']) =>
             <td class="px-4 py-3 text-lyktan-mute">{{ itemsSummary(order.items) }}</td>
             <td class="px-4 py-3">{{ order.totalKr }} kr</td>
             <td class="px-4 py-3 text-lyktan-mute">{{ formatDate(view === 'active' ? order.createdAt : (order.checkedAt || order.createdAt)) }}</td>
-            <td v-if="canEditOrders" class="px-4 py-3">
-              <button
-                type="button"
-                :disabled="savingId === order.id"
-                class="rounded-full border border-black/15 px-3 py-1.5 text-[0.8rem] font-medium text-lyktan-ink transition hover:bg-black/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
-                @click="setChecked(order, view === 'active')"
-              >
-                {{ view === 'active' ? 'Bocka av' : 'Ångra' }}
-              </button>
-            </td>
           </tr>
         </tbody>
       </table>

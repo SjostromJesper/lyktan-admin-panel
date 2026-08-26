@@ -24,6 +24,8 @@ const logout = async () => {
 
 <template>
   <div class="min-h-screen bg-lyktan-surface">
+    <VitePwaManifest />
+
     <header
       v-if="loggedIn && route.path !== '/login'"
       class="border-b border-black/8 bg-lyktan-paper"

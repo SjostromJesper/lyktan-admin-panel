@@ -8,7 +8,7 @@ type ShopifyOrderNode = {
   phone: string | null
   customer: { firstName: string | null; lastName: string | null } | null
   totalPriceSet: { shopMoney: { amount: string; currencyCode: string } }
-  lineItems: { nodes: { title: string; quantity: number }[] }
+  lineItems: { nodes: { title: string; quantity: number; product: { tags: string[] } | null }[] }
   customAttributes: { key: string; value: string }[]
 }
 
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
           phone
           customer { firstName lastName }
           totalPriceSet { shopMoney { amount currencyCode } }
-          lineItems(first: 20) { nodes { title quantity } }
+          lineItems(first: 20) { nodes { title quantity product { tags } } }
           customAttributes { key value }
         }
       }
@@ -70,6 +70,7 @@ export default defineEventHandler(async (event) => {
       phone: order.phone,
       totalKr: Math.round(Number(order.totalPriceSet.shopMoney.amount)),
       items: order.lineItems.nodes.map((li) => ({ title: li.title, quantity: li.quantity })),
+      isEvent: order.lineItems.nodes.some((li) => li.product?.tags?.includes('event')),
       checked: Boolean(checkoff),
       checkedAt: checkoff?.checked_at ?? null,
       checkedBy: checkoff?.checked_by ?? null

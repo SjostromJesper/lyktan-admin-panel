@@ -9,6 +9,7 @@ type Order = {
   phone: string | null
   totalKr: number
   items: { title: string; quantity: number }[]
+  isEvent: boolean
   checked: boolean
   checkedAt: string | null
   checkedBy: string | null
@@ -16,10 +17,13 @@ type Order = {
 
 const { canEditOrders } = usePermissions()
 
+const category = ref<'other' | 'event'>('other')
 const view = ref<'active' | 'klar'>('active')
 const orders = ref<Order[]>([])
 const loading = ref(true)
 const loadError = ref('')
+
+const visibleOrders = computed(() => orders.value.filter((o) => o.isEvent === (category.value === 'event')))
 
 const loadOrders = async () => {
   loading.value = true
@@ -67,6 +71,25 @@ const itemsSummary = (items: Order['items']) =>
       Beställningar från webshoppen, hämtade direkt från Shopify. Markera som levererad när kunden hämtat.
     </p>
 
+    <div class="mb-3 flex gap-2 text-sm">
+      <button
+        type="button"
+        class="rounded-full border px-4 py-1.5 font-medium transition"
+        :class="category === 'other' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+        @click="category = 'other'"
+      >
+        Produkter
+      </button>
+      <button
+        type="button"
+        class="rounded-full border px-4 py-1.5 font-medium transition"
+        :class="category === 'event' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+        @click="category = 'event'"
+      >
+        Event
+      </button>
+    </div>
+
     <div class="mb-4 flex gap-2 text-sm">
       <button
         type="button"
@@ -88,7 +111,7 @@ const itemsSummary = (items: Order['items']) =>
 
     <p v-if="loading" class="text-sm text-lyktan-mute">Laddar…</p>
     <p v-else-if="loadError" class="text-sm text-red-600">{{ loadError }}</p>
-    <p v-else-if="!orders.length" class="text-sm text-lyktan-mute">
+    <p v-else-if="!visibleOrders.length" class="text-sm text-lyktan-mute">
       {{ view === 'active' ? 'Inga beställningar att hämta ut.' : 'Inga avbockade beställningar ännu.' }}
     </p>
 
@@ -105,7 +128,7 @@ const itemsSummary = (items: Order['items']) =>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="order in orders" :key="order.id" class="border-b border-black/6 last:border-0">
+          <tr v-for="order in visibleOrders" :key="order.id" class="border-b border-black/6 last:border-0">
             <td v-if="canEditOrders" class="px-4 py-3">
               <button
                 type="button"

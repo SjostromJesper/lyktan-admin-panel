@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
     .from('bookings')
     .update(update)
     .eq('id', id)
-    .select('id, table_id, booking_date, start_time, end_time, party_size, for_miniatures, customer_name, customer_phone, customer_email, notes, status, created_at, tables ( name, kind )')
+    .select('id, table_id, booking_date, start_time, end_time, party_size, for_miniatures, customer_name, customer_phone, customer_email, notes, status, created_at, member_id, tables ( name, kind ), members ( first_name, last_name, tier )')
     .single()
 
   if (error) {

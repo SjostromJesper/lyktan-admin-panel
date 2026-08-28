@@ -13,8 +13,12 @@ type Booking = {
   notes: string | null
   status: 'pending' | 'confirmed' | 'cancelled'
   created_at: string
+  member_id: string | null
   tables: { name: string; kind: string } | null
+  members: { first_name: string; last_name: string; tier: string } | null
 }
+
+const TIER_LABELS: Record<string, string> = { litet: 'Litet', stort: 'Stort' }
 
 const props = defineProps<{ booking: Booking }>()
 const emit = defineEmits<{
@@ -115,6 +119,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
       </span>
       <span v-if="booking.for_miniatures" class="mb-4 ml-2 inline-block rounded-full bg-black/8 px-3 py-1 text-sm font-medium text-lyktan-mute">
         Miniatyrspel
+      </span>
+      <span v-if="booking.member_id" class="mb-4 ml-2 inline-block rounded-full bg-sky-100 px-3 py-1 text-sm font-medium text-sky-700">
+        Medlem<template v-if="booking.members"> ({{ TIER_LABELS[booking.members.tier] || booking.members.tier }})</template>
       </span>
 
       <template v-if="canEditBookings">

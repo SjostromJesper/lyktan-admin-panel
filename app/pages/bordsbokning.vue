@@ -23,7 +23,9 @@ type Booking = {
   notes: string | null
   status: 'pending' | 'confirmed' | 'cancelled'
   created_at: string
+  member_id: string | null
   tables: { name: string; kind: string } | null
+  members: { first_name: string; last_name: string; tier: string } | null
 }
 
 type RecurringEvent = {
@@ -520,12 +522,16 @@ const onBookingDeleted = () => {
                 v-for="b in bookings"
                 :key="b.id"
                 class="cursor-pointer border-b border-black/6 last:border-0 hover:bg-black/[0.02]"
+                :class="b.member_id ? 'bg-sky-50/60' : ''"
                 @click="selectedBooking = b"
               >
                 <td class="px-4 py-3 font-medium text-lyktan-ink">{{ b.booking_date }}</td>
                 <td class="px-4 py-3 text-lyktan-mute">{{ b.start_time.slice(0, 5) }}–{{ b.end_time.slice(0, 5) }}</td>
                 <td class="px-4 py-3 text-lyktan-mute">{{ b.tables?.name || '—' }}</td>
-                <td class="px-4 py-3 text-lyktan-mute">{{ b.customer_name }}</td>
+                <td class="px-4 py-3 text-lyktan-mute">
+                  {{ b.customer_name }}
+                  <span v-if="b.member_id" class="ml-1 rounded-full bg-sky-100 px-2 py-0.5 text-[0.68rem] font-medium text-sky-700">Medlem</span>
+                </td>
                 <td class="px-4 py-3">{{ b.party_size }}</td>
                 <td class="px-4 py-3">
                   <span
@@ -586,7 +592,11 @@ const onBookingDeleted = () => {
                       :key="b.id"
                       type="button"
                       class="block w-full rounded-lg px-2 py-1.5 text-left text-[0.8rem] font-medium transition"
-                      :class="b.status === 'pending' ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-dashed border-amber-300' : 'bg-lyktan-ink/5 text-lyktan-ink hover:bg-lyktan-ink/10'"
+                      :class="b.status === 'pending'
+                        ? 'border border-dashed border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100'
+                        : b.member_id
+                          ? 'bg-sky-100 text-sky-800 hover:bg-sky-200'
+                          : 'bg-lyktan-ink/5 text-lyktan-ink hover:bg-lyktan-ink/10'"
                       @click="selectedBooking = b"
                     >
                       {{ b.start_time.slice(0, 5) }}–{{ b.end_time.slice(0, 5) }} {{ b.customer_name }}

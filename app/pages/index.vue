@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings } = usePermissions()
+const { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany } = usePermissions()
 
 const tools = computed(() => {
   const items = []
@@ -9,6 +9,7 @@ const tools = computed(() => {
   if (canViewOrders.value) items.push({ to: '/bestallningar', title: 'Beställningar', description: 'Hantera kundbeställningar och hämtningar.' })
   if (canViewOrders.value) items.push({ to: '/webshop-ordrar', title: 'Webshop-ordrar', description: 'Se och bocka av beställningar från webshoppen.' })
   if (canViewBookings.value) items.push({ to: '/bordsbokning', title: 'Bordsbokning', description: 'Hantera bord och bokningar.' })
+  if (canViewCompany.value) items.push({ to: '/foretag', title: 'Företag', description: 'Företagsuppgifter och viktiga länkar.' })
   return items
 })
 </script>

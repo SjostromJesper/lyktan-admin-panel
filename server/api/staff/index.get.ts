@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
   const canSeeAccess = user.isSuperAdmin || user.permissions?.staff === 'edit' || user.permissions?.staff === 'view'
   const columns = canSeeAccess
-    ? 'id, name, role, active, email, members_access, staff_access, schedule_access, orders_access, bookings_access, created_at'
+    ? 'id, name, role, active, email, members_access, staff_access, schedule_access, orders_access, bookings_access, company_access, created_at'
     : 'id, name, role, active, created_at'
 
   const { data, error } = await supabase

@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   const { data, error } = await supabase
     .from('staff')
     .insert({ name, role: role || null })
-    .select('id, name, role, active, email, members_access, staff_access, schedule_access, orders_access, bookings_access, created_at')
+    .select('id, name, role, active, email, members_access, staff_access, schedule_access, orders_access, bookings_access, company_access, created_at')
     .single()
 
   if (error) {

@@ -8,12 +8,13 @@ type AccessBody = {
   scheduleAccess?: AccessLevel
   ordersAccess?: AccessLevel
   bookingsAccess?: AccessLevel
+  companyAccess?: AccessLevel
 }
 
 const VALID_LEVELS: AccessLevel[] = ['none', 'view', 'edit']
 const normalizeLevel = (value: unknown): AccessLevel => (VALID_LEVELS.includes(value as AccessLevel) ? (value as AccessLevel) : 'none')
 
-const SELECT_COLUMNS = 'id, name, role, active, email, members_access, staff_access, schedule_access, orders_access, bookings_access, created_at'
+const SELECT_COLUMNS = 'id, name, role, active, email, members_access, staff_access, schedule_access, orders_access, bookings_access, company_access, created_at'
 
 export default defineEventHandler(async (event) => {
   await requireAccess(event, 'staff', 'edit')
@@ -36,7 +37,7 @@ export default defineEventHandler(async (event) => {
     // account, if any, is left alone rather than deleted.
     const { data, error } = await supabase
       .from('staff')
-      .update({ email: null, members_access: 'none', staff_access: 'none', schedule_access: 'none', orders_access: 'none', bookings_access: 'none' })
+      .update({ email: null, members_access: 'none', staff_access: 'none', schedule_access: 'none', orders_access: 'none', bookings_access: 'none', company_access: 'none' })
       .eq('id', id)
       .select(SELECT_COLUMNS)
       .single()
@@ -57,6 +58,7 @@ export default defineEventHandler(async (event) => {
   const scheduleAccess = normalizeLevel(body?.scheduleAccess)
   const ordersAccess = normalizeLevel(body?.ordersAccess)
   const bookingsAccess = normalizeLevel(body?.bookingsAccess)
+  const companyAccess = normalizeLevel(body?.companyAccess)
 
   const { error: createError } = await supabase.auth.admin.createUser({
     email,
@@ -98,7 +100,8 @@ export default defineEventHandler(async (event) => {
       staff_access: staffAccess,
       schedule_access: scheduleAccess,
       orders_access: ordersAccess,
-      bookings_access: bookingsAccess
+      bookings_access: bookingsAccess,
+      company_access: companyAccess
     })
     .eq('id', id)
     .select(SELECT_COLUMNS)

@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3'
 
-export type Section = 'members' | 'staff' | 'schedule' | 'orders' | 'bookings'
+export type Section = 'members' | 'staff' | 'schedule' | 'orders' | 'bookings' | 'company'
 export type AccessLevel = 'none' | 'view' | 'edit'
 
 type SessionUser = {

@@ -1,4 +1,4 @@
-type Section = 'members' | 'staff' | 'schedule' | 'orders' | 'bookings'
+type Section = 'members' | 'staff' | 'schedule' | 'orders' | 'bookings' | 'company'
 type AccessLevel = 'none' | 'view' | 'edit'
 
 const levelFor = (user: any, section: Section): AccessLevel => {
@@ -14,6 +14,7 @@ export const usePermissions = () => {
   const scheduleAccess = computed(() => levelFor(user.value, 'schedule'))
   const ordersAccess = computed(() => levelFor(user.value, 'orders'))
   const bookingsAccess = computed(() => levelFor(user.value, 'bookings'))
+  const companyAccess = computed(() => levelFor(user.value, 'company'))
 
   return {
     isSuperAdmin: computed(() => Boolean((user.value as any)?.isSuperAdmin)),
@@ -22,6 +23,7 @@ export const usePermissions = () => {
     scheduleAccess,
     ordersAccess,
     bookingsAccess,
+    companyAccess,
     canViewMembers: computed(() => membersAccess.value !== 'none'),
     canEditMembers: computed(() => membersAccess.value === 'edit'),
     canViewStaff: computed(() => staffAccess.value !== 'none'),
@@ -31,6 +33,8 @@ export const usePermissions = () => {
     canViewOrders: computed(() => ordersAccess.value !== 'none'),
     canEditOrders: computed(() => ordersAccess.value === 'edit'),
     canViewBookings: computed(() => bookingsAccess.value !== 'none'),
-    canEditBookings: computed(() => bookingsAccess.value === 'edit')
+    canEditBookings: computed(() => bookingsAccess.value === 'edit'),
+    canViewCompany: computed(() => companyAccess.value !== 'none'),
+    canEditCompany: computed(() => companyAccess.value === 'edit')
   }
 }

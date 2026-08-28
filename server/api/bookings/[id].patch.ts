@@ -1,12 +1,12 @@
 type BookingPatchBody = {
-  status?: 'confirmed' | 'cancelled'
+  status?: 'pending' | 'confirmed' | 'cancelled'
   customerName?: string
   customerPhone?: string
   customerEmail?: string
   partySize?: number
 }
 
-const VALID_STATUSES = ['confirmed', 'cancelled']
+const VALID_STATUSES = ['pending', 'confirmed', 'cancelled']
 
 export default defineEventHandler(async (event) => {
   await requireAccess(event, 'bookings', 'edit')
@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
     .from('bookings')
     .update(update)
     .eq('id', id)
-    .select('id, table_id, booking_date, start_time, party_size, for_miniatures, customer_name, customer_phone, customer_email, status, created_at, tables ( name, kind )')
+    .select('id, table_id, booking_date, start_time, end_time, party_size, for_miniatures, customer_name, customer_phone, customer_email, notes, status, created_at, tables ( name, kind )')
     .single()
 
   if (error) {

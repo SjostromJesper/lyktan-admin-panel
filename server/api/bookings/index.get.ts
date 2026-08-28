@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
 
   let request = supabase
     .from('bookings')
-    .select('id, table_id, booking_date, start_time, party_size, for_miniatures, customer_name, customer_phone, customer_email, status, created_at, tables ( name, kind )')
+    .select('id, table_id, booking_date, start_time, end_time, party_size, for_miniatures, customer_name, customer_phone, customer_email, notes, status, created_at, tables ( name, kind )')
 
   if (from && to) {
     // Calendar view — a fixed date range, optionally narrowed by status.
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
       request = request.eq('status', view)
     }
   } else if (view === 'active') {
-    request = request.eq('status', 'confirmed').gte('booking_date', today)
+    request = request.in('status', ['confirmed', 'pending']).gte('booking_date', today)
   } else if (view === 'history') {
     request = request.or(`status.eq.cancelled,booking_date.lt.${today}`)
   }

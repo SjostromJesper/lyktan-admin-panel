@@ -14,12 +14,14 @@ type Booking = {
   table_id: string
   booking_date: string
   start_time: string
+  end_time: string
   party_size: number
   for_miniatures: boolean
   customer_name: string
   customer_phone: string | null
   customer_email: string | null
-  status: 'confirmed' | 'cancelled'
+  notes: string | null
+  status: 'pending' | 'confirmed' | 'cancelled'
   created_at: string
   tables: { name: string; kind: string } | null
 }
@@ -198,9 +200,10 @@ const loadCalendar = async () => {
 
   try {
     const res = await $fetch<{ bookings: Booking[] }>('/api/bookings', {
-      query: { from: toIsoDate(weekDays.value[0]), to: toIsoDate(weekDays.value[6]), status: 'confirmed' }
+      query: { from: toIsoDate(weekDays.value[0]), to: toIsoDate(weekDays.value[6]) }
     })
-    calendarBookings.value = res.bookings
+    // Show pending (awaiting deposit) alongside confirmed — just cancelled is hidden.
+    calendarBookings.value = res.bookings.filter((b) => b.status !== 'cancelled')
   } catch (err: any) {
     calendarError.value = err?.data?.statusMessage || 'Kunde inte hämta bokningar'
   } finally {
@@ -520,16 +523,20 @@ const onBookingDeleted = () => {
                 @click="selectedBooking = b"
               >
                 <td class="px-4 py-3 font-medium text-lyktan-ink">{{ b.booking_date }}</td>
-                <td class="px-4 py-3 text-lyktan-mute">{{ b.start_time.slice(0, 5) }}</td>
+                <td class="px-4 py-3 text-lyktan-mute">{{ b.start_time.slice(0, 5) }}–{{ b.end_time.slice(0, 5) }}</td>
                 <td class="px-4 py-3 text-lyktan-mute">{{ b.tables?.name || '—' }}</td>
                 <td class="px-4 py-3 text-lyktan-mute">{{ b.customer_name }}</td>
                 <td class="px-4 py-3">{{ b.party_size }}</td>
                 <td class="px-4 py-3">
                   <span
                     class="rounded-full px-2.5 py-1 text-[0.72rem] font-medium"
-                    :class="b.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'"
+                    :class="{
+                      pending: 'bg-amber-100 text-amber-700',
+                      confirmed: 'bg-emerald-100 text-emerald-700',
+                      cancelled: 'bg-red-100 text-red-700'
+                    }[b.status]"
                   >
-                    {{ b.status === 'confirmed' ? 'Bekräftad' : 'Avbokad' }}
+                    {{ { pending: 'Väntar på betalning', confirmed: 'Bekräftad', cancelled: 'Avbokad' }[b.status] }}
                   </span>
                 </td>
               </tr>
@@ -578,10 +585,12 @@ const onBookingDeleted = () => {
                       v-for="b in bookingsForCell(t.id, day)"
                       :key="b.id"
                       type="button"
-                      class="block w-full rounded-lg bg-lyktan-ink/5 px-2 py-1.5 text-left text-[0.8rem] font-medium text-lyktan-ink transition hover:bg-lyktan-ink/10"
+                      class="block w-full rounded-lg px-2 py-1.5 text-left text-[0.8rem] font-medium transition"
+                      :class="b.status === 'pending' ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-dashed border-amber-300' : 'bg-lyktan-ink/5 text-lyktan-ink hover:bg-lyktan-ink/10'"
                       @click="selectedBooking = b"
                     >
-                      {{ b.start_time.slice(0, 5) }} {{ b.customer_name }}
+                      {{ b.start_time.slice(0, 5) }}–{{ b.end_time.slice(0, 5) }} {{ b.customer_name }}
+                      <span v-if="b.status === 'pending'" class="opacity-70">(väntar)</span>
                     </button>
                   </div>
                 </td>

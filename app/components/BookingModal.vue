@@ -4,12 +4,14 @@ type Booking = {
   table_id: string
   booking_date: string
   start_time: string
+  end_time: string
   party_size: number
   for_miniatures: boolean
   customer_name: string
   customer_phone: string | null
   customer_email: string | null
-  status: 'confirmed' | 'cancelled'
+  notes: string | null
+  status: 'pending' | 'confirmed' | 'cancelled'
   created_at: string
   tables: { name: string; kind: string } | null
 }
@@ -68,9 +70,10 @@ const toggleStatus = async () => {
   error.value = ''
 
   try {
+    const nextStatus = booking.value.status === 'cancelled' ? 'confirmed' : 'cancelled'
     const res = await $fetch<{ booking: Booking }>(`/api/bookings/${booking.value.id}`, {
       method: 'PATCH',
-      body: { status: booking.value.status === 'confirmed' ? 'cancelled' : 'confirmed' }
+      body: { status: nextStatus }
     })
     booking.value = res.booking
     emit('updated', res.booking)
@@ -95,19 +98,23 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
       <div class="mb-4 flex items-center justify-between">
         <div>
           <h1 class="text-lg font-semibold text-lyktan-ink">{{ booking.tables?.name || 'Okänt bord' }}</h1>
-          <p class="text-sm text-lyktan-mute">{{ booking.booking_date }} · {{ booking.start_time.slice(0, 5) }}</p>
+          <p class="text-sm text-lyktan-mute">{{ booking.booking_date }} · {{ booking.start_time.slice(0, 5) }}–{{ booking.end_time.slice(0, 5) }}</p>
         </div>
         <button type="button" aria-label="Stäng" class="text-lyktan-mute hover:text-lyktan-ink" @click="emit('close')">✕</button>
       </div>
 
       <span
         class="mb-4 inline-block rounded-full px-3 py-1 text-sm font-medium"
-        :class="booking.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'"
+        :class="{
+          pending: 'bg-amber-100 text-amber-700',
+          confirmed: 'bg-emerald-100 text-emerald-700',
+          cancelled: 'bg-red-100 text-red-700'
+        }[booking.status]"
       >
-        {{ booking.status === 'confirmed' ? 'Bekräftad' : 'Avbokad' }}
+        {{ { pending: 'Väntar på betalning', confirmed: 'Bekräftad', cancelled: 'Avbokad' }[booking.status] }}
       </span>
       <span v-if="booking.for_miniatures" class="mb-4 ml-2 inline-block rounded-full bg-black/8 px-3 py-1 text-sm font-medium text-lyktan-mute">
-        Miniatyrmålning
+        Miniatyrspel
       </span>
 
       <template v-if="canEditBookings">
@@ -132,6 +139,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Antal personer</span>
             <input v-model.number="editDraft.partySize" type="number" min="1" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
           </label>
+
+          <div v-if="booking.notes">
+            <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Anteckning från kund</span>
+            <p class="rounded-lg bg-black/[0.03] px-3 py-2 text-sm text-lyktan-ink">{{ booking.notes }}</p>
+          </div>
         </div>
 
         <p v-if="error" class="mt-3 text-sm text-red-600">{{ error }}</p>
@@ -152,7 +164,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
             class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
             @click="toggleStatus"
           >
-            {{ booking.status === 'confirmed' ? 'Avboka' : 'Återställ bokning' }}
+            {{ booking.status === 'cancelled' ? 'Återställ bokning' : 'Avboka' }}
           </button>
         </div>
       </template>
@@ -167,6 +179,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         <div>
           <dt class="text-[0.72rem] font-medium text-lyktan-mute">Antal personer</dt>
           <dd class="text-lyktan-ink">{{ booking.party_size }}</dd>
+        </div>
+        <div v-if="booking.notes">
+          <dt class="text-[0.72rem] font-medium text-lyktan-mute">Anteckning från kund</dt>
+          <dd class="text-lyktan-ink">{{ booking.notes }}</dd>
         </div>
       </dl>
     </div>

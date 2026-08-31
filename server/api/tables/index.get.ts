@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = await supabase
     .from('tables')
-    .select('id, name, kind, capacity, price_kr, active, created_at')
+    .select('id, name, public_name, kind, capacity, price_kr, active, created_at')
     .order('kind', { ascending: true })
     .order('name', { ascending: true })
 

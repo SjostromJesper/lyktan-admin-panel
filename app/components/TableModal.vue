@@ -2,6 +2,7 @@
 type Table = {
   id: string
   name: string
+  public_name: string | null
   kind: 'bord' | 'rum'
   capacity: number
   price_kr: number | null
@@ -24,10 +25,10 @@ watch(() => props.table, (t) => {
   table.value = { ...t }
 })
 
-const editDraft = ref({ name: '', kind: 'bord' as Table['kind'], capacity: 1, priceKr: null as number | null, active: true })
+const editDraft = ref({ name: '', publicName: '', kind: 'bord' as Table['kind'], capacity: 1, priceKr: null as number | null, active: true })
 
 watch(table, (t) => {
-  editDraft.value = { name: t.name, kind: t.kind, capacity: t.capacity, priceKr: t.price_kr, active: t.active }
+  editDraft.value = { name: t.name, publicName: t.public_name || '', kind: t.kind, capacity: t.capacity, priceKr: t.price_kr, active: t.active }
 }, { immediate: true })
 
 const saving = ref(false)
@@ -93,6 +94,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           </label>
 
           <label class="block">
+            <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Namn i webshoppen (valfritt, annars visas "{{ table.name }}")</span>
+            <input v-model="editDraft.publicName" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          </label>
+
+          <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Typ</span>
             <select v-model="editDraft.kind" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
               <option value="bord">Bord</option>
@@ -140,6 +146,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
       </template>
 
       <dl v-else class="space-y-3 text-sm">
+        <div v-if="table.public_name">
+          <dt class="text-[0.72rem] font-medium text-lyktan-mute">Namn i webshoppen</dt>
+          <dd class="text-lyktan-ink">{{ table.public_name }}</dd>
+        </div>
         <div>
           <dt class="text-[0.72rem] font-medium text-lyktan-mute">Typ</dt>
           <dd class="text-lyktan-ink">{{ table.kind === 'rum' ? 'Rum' : 'Bord' }}</dd>

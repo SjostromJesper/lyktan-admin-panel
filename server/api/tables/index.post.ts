@@ -1,5 +1,6 @@
 type TableBody = {
   name?: string
+  publicName?: string | null
   kind?: string
   capacity?: number
   priceKr?: number | null
@@ -13,6 +14,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody<TableBody>(event)
 
   const name = String(body?.name || '').trim()
+  const publicName = body?.publicName ? String(body.publicName).trim() : null
   const kind = String(body?.kind || '').trim()
   const capacity = Number(body?.capacity)
   const priceKr = body?.priceKr !== undefined && body.priceKr !== null && String(body.priceKr) !== '' ? Number(body.priceKr) : null
@@ -37,8 +39,8 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = await supabase
     .from('tables')
-    .insert({ name, kind, capacity, price_kr: priceKr })
-    .select('id, name, kind, capacity, price_kr, active, created_at')
+    .insert({ name, public_name: publicName, kind, capacity, price_kr: priceKr })
+    .select('id, name, public_name, kind, capacity, price_kr, active, created_at')
     .single()
 
   if (error) {

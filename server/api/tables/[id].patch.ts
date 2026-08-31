@@ -1,5 +1,6 @@
 type TablePatchBody = {
   name?: string
+  publicName?: string | null
   kind?: string
   capacity?: number
   priceKr?: number | null
@@ -24,6 +25,10 @@ export default defineEventHandler(async (event) => {
     const name = String(body.name).trim()
     if (!name) throw createError({ statusCode: 400, statusMessage: 'Namn saknas' })
     update.name = name
+  }
+
+  if (body.publicName !== undefined) {
+    update.public_name = body.publicName ? String(body.publicName).trim() || null : null
   }
 
   if (body.kind !== undefined) {
@@ -61,7 +66,7 @@ export default defineEventHandler(async (event) => {
     .from('tables')
     .update(update)
     .eq('id', id)
-    .select('id, name, kind, capacity, price_kr, active, created_at')
+    .select('id, name, public_name, kind, capacity, price_kr, active, created_at')
     .single()
 
   if (error) {

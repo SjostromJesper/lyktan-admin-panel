@@ -2,6 +2,7 @@
 type Table = {
   id: string
   name: string
+  public_name: string | null
   kind: 'bord' | 'rum'
   capacity: number
   price_kr: number | null
@@ -63,7 +64,7 @@ const loadTables = async () => {
 const showAddTableForm = ref(false)
 const addTableSaving = ref(false)
 const addTableError = ref('')
-const newTable = ref({ name: '', kind: 'bord' as Table['kind'], capacity: 2, priceKr: null as number | null })
+const newTable = ref({ name: '', publicName: '', kind: 'bord' as Table['kind'], capacity: 2, priceKr: null as number | null })
 
 const submitAddTable = async () => {
   addTableSaving.value = true
@@ -72,7 +73,7 @@ const submitAddTable = async () => {
   try {
     const { table } = await $fetch<{ table: Table }>('/api/tables', { method: 'POST', body: newTable.value })
     tables.value.push(table)
-    newTable.value = { name: '', kind: 'bord', capacity: 2, priceKr: null }
+    newTable.value = { name: '', publicName: '', kind: 'bord', capacity: 2, priceKr: null }
     showAddTableForm.value = false
   } catch (err: any) {
     addTableError.value = err?.data?.statusMessage || 'Kunde inte spara bordet'
@@ -278,6 +279,11 @@ const onBookingDeleted = () => {
         <label class="block">
           <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Namn</span>
           <input v-model="newTable.name" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+        </label>
+
+        <label class="block">
+          <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Namn i webshoppen (valfritt)</span>
+          <input v-model="newTable.publicName" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
         </label>
 
         <label class="block">

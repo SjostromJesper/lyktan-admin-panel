@@ -16,7 +16,7 @@ type Order = {
   created_at: string
 }
 
-const { canEditOrders } = usePermissions()
+const { canEditOrders, canViewMembers } = usePermissions()
 
 const view = ref<'active' | 'klar'>('active')
 const orders = ref<Order[]>([])
@@ -56,6 +56,15 @@ const newOrder = ref({
   customerEmail: '',
   notes: ''
 })
+
+const showMemberPicker = ref(false)
+
+const applyMember = (member: { first_name: string, last_name: string, phone: string | null, email: string | null }) => {
+  newOrder.value.customerName = `${member.first_name} ${member.last_name}`.trim()
+  newOrder.value.customerPhone = member.phone || ''
+  newOrder.value.customerEmail = member.email || ''
+  showMemberPicker.value = false
+}
 
 const selectSupplier = (supplier: 'games_workshop' | 'asmodee') => {
   newOrder.value.supplier = supplier
@@ -204,6 +213,16 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
             <input v-model="newOrder.productName" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
           </label>
 
+          <div v-if="canViewMembers" class="sm:col-span-2">
+            <button
+              type="button"
+              class="rounded-full border border-black/15 px-4 py-1.5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+              @click="showMemberPicker = true"
+            >
+              Välj befintlig medlem
+            </button>
+          </div>
+
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Kundnamn</span>
             <input v-model="newOrder.customerName" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
@@ -261,6 +280,16 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Pris (kr)</span>
             <input v-model.number="newOrder.priceKr" type="number" min="0" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
           </label>
+
+          <div v-if="canViewMembers" class="sm:col-span-2">
+            <button
+              type="button"
+              class="rounded-full border border-black/15 px-4 py-1.5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+              @click="showMemberPicker = true"
+            >
+              Välj befintlig medlem
+            </button>
+          </div>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Kundnamn</span>
@@ -373,6 +402,12 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
       @close="selectedOrder = null"
       @updated="onOrderUpdated"
       @deleted="onOrderDeleted"
+    />
+
+    <MemberPickerModal
+      v-if="showMemberPicker"
+      @close="showMemberPicker = false"
+      @select="applyMember"
     />
   </div>
 </template>

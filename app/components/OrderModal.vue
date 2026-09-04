@@ -23,7 +23,16 @@ const emit = defineEmits<{
   deleted: [id: string]
 }>()
 
-const { canEditOrders } = usePermissions()
+const { canEditOrders, canViewMembers } = usePermissions()
+
+const showMemberPicker = ref(false)
+
+const applyMember = (member: { first_name: string, last_name: string, phone: string | null, email: string | null }) => {
+  editDraft.value.customerName = `${member.first_name} ${member.last_name}`.trim()
+  editDraft.value.customerPhone = member.phone || ''
+  editDraft.value.customerEmail = member.email || ''
+  showMemberPicker.value = false
+}
 
 const order = ref<Order>({ ...props.order })
 
@@ -153,6 +162,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           </button>
         </div>
         <div class="mt-4 space-y-4">
+          <div v-if="canViewMembers">
+            <button
+              type="button"
+              class="rounded-full border border-black/15 px-4 py-1.5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+              @click="showMemberPicker = true"
+            >
+              Välj befintlig medlem
+            </button>
+          </div>
+
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Kundnamn</span>
             <input v-model="editDraft.customerName" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
@@ -237,5 +256,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         <p class="mt-4 text-[0.72rem] text-lyktan-mute">Du har bara läsåtkomst till Beställningar.</p>
       </template>
     </div>
+
+    <MemberPickerModal
+      v-if="showMemberPicker"
+      @close="showMemberPicker = false"
+      @select="applyMember"
+    />
   </div>
 </template>

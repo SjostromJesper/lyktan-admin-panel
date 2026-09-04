@@ -40,6 +40,17 @@ type RecurringEvent = {
   created_at: string
 }
 
+type OneOffEvent = {
+  id: string
+  name: string
+  event_date: string
+  start_time: string
+  end_time: string
+  table_ids: string[]
+  active: boolean
+  created_at: string
+}
+
 const { canEditBookings } = usePermissions()
 
 // --- Tables ---
@@ -159,6 +170,68 @@ const onRecurringDeleted = (id: string) => {
 
 const tableNames = (ids: string[]) => tables.value.filter((t) => ids.includes(t.id)).map((t) => t.name).join(', ')
 
+// --- One-off events ---
+const oneOffEvents = ref<OneOffEvent[]>([])
+const oneOffLoading = ref(true)
+const oneOffError = ref('')
+
+const loadOneOffEvents = async () => {
+  oneOffLoading.value = true
+  oneOffError.value = ''
+
+  try {
+    const res = await $fetch<{ oneOffEvents: OneOffEvent[] }>('/api/one-off-events')
+    oneOffEvents.value = res.oneOffEvents
+  } catch (err: any) {
+    oneOffError.value = err?.data?.statusMessage || 'Kunde inte hämta engångsevent'
+  } finally {
+    oneOffLoading.value = false
+  }
+}
+
+const showAddOneOffForm = ref(false)
+const addOneOffSaving = ref(false)
+const addOneOffError = ref('')
+const newOneOff = ref({ name: '', eventDate: toIsoDate(new Date()), startTime: '10:00', endTime: '17:00', tableIds: [] as string[] })
+
+const toggleNewOneOffTable = (id: string) => {
+  const idx = newOneOff.value.tableIds.indexOf(id)
+  if (idx === -1) newOneOff.value.tableIds.push(id)
+  else newOneOff.value.tableIds.splice(idx, 1)
+}
+
+const submitAddOneOff = async () => {
+  addOneOffSaving.value = true
+  addOneOffError.value = ''
+
+  try {
+    const { oneOffEvent } = await $fetch<{ oneOffEvent: OneOffEvent }>('/api/one-off-events', {
+      method: 'POST',
+      body: newOneOff.value
+    })
+    oneOffEvents.value.push(oneOffEvent)
+    newOneOff.value = { name: '', eventDate: toIsoDate(new Date()), startTime: '10:00', endTime: '17:00', tableIds: [] }
+    showAddOneOffForm.value = false
+  } catch (err: any) {
+    addOneOffError.value = err?.data?.statusMessage || 'Kunde inte spara eventet'
+  } finally {
+    addOneOffSaving.value = false
+  }
+}
+
+const selectedOneOff = ref<OneOffEvent | null>(null)
+
+const onOneOffUpdated = (updated: OneOffEvent) => {
+  const idx = oneOffEvents.value.findIndex((e) => e.id === updated.id)
+  if (idx !== -1) oneOffEvents.value[idx] = updated
+  selectedOneOff.value = null
+}
+
+const onOneOffDeleted = (id: string) => {
+  oneOffEvents.value = oneOffEvents.value.filter((e) => e.id !== id)
+  selectedOneOff.value = null
+}
+
 // --- Bookings (list) ---
 const bookingDisplay = ref<'lista' | 'kalender'>('lista')
 const view = ref<'active' | 'history'>('active')
@@ -229,6 +302,11 @@ const recurringForCell = (tableId: string, date: Date) => {
   return recurringEvents.value.filter((e) => e.active && e.weekday === wd && e.table_ids.includes(tableId))
 }
 
+const oneOffForCell = (tableId: string, date: Date) => {
+  const iso = toIsoDate(date)
+  return oneOffEvents.value.filter((e) => e.active && e.event_date === iso && e.table_ids.includes(tableId))
+}
+
 const prevWeek = () => { weekStart.value = addDays(weekStart.value, -7) }
 const nextWeek = () => { weekStart.value = addDays(weekStart.value, 7) }
 const goToday = () => { weekStart.value = startOfWeek(new Date()) }
@@ -237,6 +315,7 @@ onMounted(() => {
   loadTables()
   loadBookings()
   loadRecurringEvents()
+  loadOneOffEvents()
 })
 
 const selectedBooking = ref<Booking | null>(null)
@@ -462,6 +541,112 @@ const onBookingDeleted = () => {
       </div>
     </div>
 
+    <div class="mb-8">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-lyktan-ink">Engångsevent</h2>
+        <button
+          v-if="canEditBookings"
+          type="button"
+          class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+          @click="showAddOneOffForm = !showAddOneOffForm"
+        >
+          {{ showAddOneOffForm ? 'Avbryt' : '+ Nytt event' }}
+        </button>
+      </div>
+
+      <form
+        v-if="showAddOneOffForm"
+        class="mb-4 grid grid-cols-1 gap-4 rounded-2xl border border-black/8 bg-lyktan-paper p-6 sm:grid-cols-2"
+        @submit.prevent="submitAddOneOff"
+      >
+        <label class="block sm:col-span-2">
+          <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Namn</span>
+          <input v-model="newOneOff.name" required placeholder="T.ex. Prerelease" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+        </label>
+
+        <label class="block">
+          <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Datum</span>
+          <input v-model="newOneOff.eventDate" type="date" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+        </label>
+
+        <div class="grid grid-cols-2 gap-4">
+          <label class="block">
+            <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Start</span>
+            <input v-model="newOneOff.startTime" type="time" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          </label>
+          <label class="block">
+            <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Slut</span>
+            <input v-model="newOneOff.endTime" type="time" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          </label>
+        </div>
+
+        <div class="sm:col-span-2">
+          <span class="mb-2 block text-[0.72rem] font-medium text-lyktan-mute">Bord</span>
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="t in tables"
+              :key="t.id"
+              type="button"
+              class="rounded-full border px-3 py-1 text-sm font-medium transition"
+              :class="newOneOff.tableIds.includes(t.id) ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+              @click="toggleNewOneOffTable(t.id)"
+            >
+              {{ t.name }}
+            </button>
+          </div>
+        </div>
+
+        <p v-if="addOneOffError" class="sm:col-span-2 text-sm text-red-600">{{ addOneOffError }}</p>
+
+        <div class="sm:col-span-2">
+          <button
+            type="submit"
+            :disabled="addOneOffSaving"
+            class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {{ addOneOffSaving ? 'Sparar…' : 'Spara event' }}
+          </button>
+        </div>
+      </form>
+
+      <p v-if="oneOffLoading" class="text-sm text-lyktan-mute">Laddar…</p>
+      <p v-else-if="oneOffError" class="text-sm text-red-600">{{ oneOffError }}</p>
+      <p v-else-if="!oneOffEvents.length" class="text-sm text-lyktan-mute">Inga engångsevent ännu.</p>
+
+      <div v-else class="overflow-x-auto rounded-2xl border border-black/8 bg-lyktan-paper">
+        <table class="w-full min-w-[600px] text-left text-sm">
+          <thead>
+            <tr class="border-b border-black/8 text-[0.72rem] font-medium text-lyktan-mute">
+              <th class="px-4 py-3">Namn</th>
+              <th class="px-4 py-3">Datum & tid</th>
+              <th class="px-4 py-3">Bord</th>
+              <th class="px-4 py-3">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="e in oneOffEvents"
+              :key="e.id"
+              class="cursor-pointer border-b border-black/6 last:border-0 hover:bg-black/[0.02]"
+              @click="selectedOneOff = e"
+            >
+              <td class="px-4 py-3 font-medium text-lyktan-ink">{{ e.name }}</td>
+              <td class="px-4 py-3 text-lyktan-mute">{{ e.event_date }} {{ e.start_time.slice(0, 5) }}–{{ e.end_time.slice(0, 5) }}</td>
+              <td class="px-4 py-3 text-lyktan-mute">{{ tableNames(e.table_ids) }}</td>
+              <td class="px-4 py-3">
+                <span
+                  class="rounded-full px-2.5 py-1 text-[0.72rem] font-medium"
+                  :class="e.active ? 'bg-emerald-100 text-emerald-700' : 'bg-black/8 text-lyktan-mute'"
+                >
+                  {{ e.active ? 'Aktiv' : 'Inaktiv' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <div>
       <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
         <h2 class="text-sm font-semibold text-lyktan-ink">Bokningar</h2>
@@ -594,6 +779,15 @@ const onBookingDeleted = () => {
                       {{ e.start_time.slice(0, 5) }}–{{ e.end_time.slice(0, 5) }} {{ e.name }}
                     </button>
                     <button
+                      v-for="e in oneOffForCell(t.id, day)"
+                      :key="e.id"
+                      type="button"
+                      class="block w-full rounded-lg bg-violet-100 px-2 py-1.5 text-left text-[0.8rem] font-medium text-violet-800 transition hover:bg-violet-200"
+                      @click="selectedOneOff = e"
+                    >
+                      {{ e.start_time.slice(0, 5) }}–{{ e.end_time.slice(0, 5) }} {{ e.name }}
+                    </button>
+                    <button
                       v-for="b in bookingsForCell(t.id, day)"
                       :key="b.id"
                       type="button"
@@ -640,6 +834,15 @@ const onBookingDeleted = () => {
       @close="selectedRecurring = null"
       @updated="onRecurringUpdated"
       @deleted="onRecurringDeleted"
+    />
+
+    <OneOffEventModal
+      v-if="selectedOneOff"
+      :event="selectedOneOff"
+      :tables="tables"
+      @close="selectedOneOff = null"
+      @updated="onOneOffUpdated"
+      @deleted="onOneOffDeleted"
     />
   </div>
 </template>

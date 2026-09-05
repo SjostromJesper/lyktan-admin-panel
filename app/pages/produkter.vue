@@ -8,12 +8,16 @@ type Product = {
   featuredImage: { url: string, altText: string | null } | null
   priceRangeV2: { minVariantPrice: { amount: string, currencyCode: string } }
   collections: { nodes: { title: string }[] }
+  releaseDate: { value: string } | null
 }
 type Collection = { id: string, title: string }
 
 const { canEditProducts } = usePermissions()
 
 const STATUS_LABELS: Record<Product['status'], string> = { ACTIVE: 'Aktiv', DRAFT: 'Utkast', ARCHIVED: 'Arkiverad' }
+
+const todayIso = () => new Date().toISOString().slice(0, 10)
+const isUpcoming = (product: Product) => Boolean(product.releaseDate?.value && product.releaseDate.value > todayIso())
 
 const products = ref<Product[]>([])
 const pageInfo = ref<{ hasNextPage: boolean, endCursor: string | null }>({ hasNextPage: false, endCursor: null })
@@ -86,6 +90,7 @@ const newProduct = ref({
   collectionIds: [] as string[],
   tags: '',
   status: 'ACTIVE' as 'ACTIVE' | 'DRAFT',
+  releaseDate: '',
   images: [] as File[]
 })
 
@@ -104,6 +109,7 @@ const resetAddForm = () => {
     collectionIds: [],
     tags: '',
     status: 'ACTIVE',
+    releaseDate: '',
     images: []
   }
   if (fileInput.value) fileInput.value.value = ''
@@ -124,6 +130,7 @@ const submitAdd = async () => {
     formData.append('inventoryQuantity', String(newProduct.value.inventoryQuantity))
     formData.append('tags', newProduct.value.tags.trim())
     formData.append('status', newProduct.value.status)
+    formData.append('releaseDate', newProduct.value.releaseDate)
     for (const id of newProduct.value.collectionIds) formData.append('collectionIds', id)
     for (const file of newProduct.value.images) formData.append('images', file)
 
@@ -139,6 +146,35 @@ const submitAdd = async () => {
     addError.value = err?.data?.statusMessage || 'Kunde inte skapa produkten'
   } finally {
     addSaving.value = false
+  }
+}
+
+// --- Interest signups (for upcoming-release products) ---
+const openSignupsHandle = ref<string | null>(null)
+const signupsByHandle = ref<Record<string, { email: string, created_at: string }[]>>({})
+const loadingSignups = ref(false)
+
+const toggleSignups = async (product: Product) => {
+  if (openSignupsHandle.value === product.handle) {
+    openSignupsHandle.value = null
+    return
+  }
+
+  openSignupsHandle.value = product.handle
+
+  if (signupsByHandle.value[product.handle]) return
+
+  loadingSignups.value = true
+
+  try {
+    const res = await $fetch<{ signups: { email: string, created_at: string }[] }>('/api/products/interest', {
+      query: { handle: product.handle }
+    })
+    signupsByHandle.value[product.handle] = res.signups
+  } catch {
+    signupsByHandle.value[product.handle] = []
+  } finally {
+    loadingSignups.value = false
   }
 }
 </script>
@@ -196,6 +232,12 @@ const submitAdd = async () => {
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Taggar</span>
             <input v-model="newProduct.tags" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm" placeholder="kommaseparerat, valfritt">
+          </label>
+
+          <label class="block">
+            <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Releasedatum</span>
+            <input v-model="newProduct.releaseDate" type="date" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <span class="mt-1 block text-[0.72rem] text-lyktan-mute">Valfritt. Ett framtida datum visar "Kommer snart" + intresseanmälan istället för köpknapp. Nyligen släppta produkter (inom 30 dagar) märks som "Nyhet" automatiskt.</span>
           </label>
 
           <div class="block sm:col-span-2">
@@ -274,30 +316,56 @@ const submitAdd = async () => {
             <th class="px-4 py-3">Pris</th>
             <th class="px-4 py-3">Lager</th>
             <th class="px-4 py-3">Status</th>
+            <th class="px-4 py-3">Release</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="product in products" :key="product.id" class="border-b border-black/6 last:border-0">
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-3">
-                <div class="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-lyktan-surface">
-                  <img v-if="product.featuredImage?.url" :src="product.featuredImage.url" :alt="product.featuredImage.altText || product.title" class="h-full w-full object-contain">
+          <template v-for="product in products" :key="product.id">
+            <tr class="border-b border-black/6 last:border-0">
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
+                  <div class="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-lyktan-surface">
+                    <img v-if="product.featuredImage?.url" :src="product.featuredImage.url" :alt="product.featuredImage.altText || product.title" class="h-full w-full object-contain">
+                  </div>
+                  <span class="font-medium text-lyktan-ink">{{ product.title }}</span>
                 </div>
-                <span class="font-medium text-lyktan-ink">{{ product.title }}</span>
-              </div>
-            </td>
-            <td class="px-4 py-3 text-lyktan-mute">{{ product.collections.nodes.map(c => c.title).join(', ') || '—' }}</td>
-            <td class="px-4 py-3">{{ formatKr(Number(product.priceRangeV2.minVariantPrice.amount)) }}</td>
-            <td class="px-4 py-3">{{ product.totalInventory }}</td>
-            <td class="px-4 py-3">
-              <span
-                class="rounded-full px-2.5 py-1 text-[0.72rem] font-medium"
-                :class="product.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-700' : 'bg-black/[0.04] text-lyktan-mute'"
-              >
-                {{ STATUS_LABELS[product.status] }}
-              </span>
-            </td>
-          </tr>
+              </td>
+              <td class="px-4 py-3 text-lyktan-mute">{{ product.collections.nodes.map(c => c.title).join(', ') || '—' }}</td>
+              <td class="px-4 py-3">{{ formatKr(Number(product.priceRangeV2.minVariantPrice.amount)) }}</td>
+              <td class="px-4 py-3">{{ product.totalInventory }}</td>
+              <td class="px-4 py-3">
+                <span
+                  class="rounded-full px-2.5 py-1 text-[0.72rem] font-medium"
+                  :class="product.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-700' : 'bg-black/[0.04] text-lyktan-mute'"
+                >
+                  {{ STATUS_LABELS[product.status] }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-lyktan-mute">
+                <template v-if="product.releaseDate?.value">
+                  <div>{{ product.releaseDate.value }}</div>
+                  <button
+                    v-if="isUpcoming(product)"
+                    type="button"
+                    class="text-[0.72rem] text-lyktan-accent hover:underline"
+                    @click="toggleSignups(product)"
+                  >
+                    {{ openSignupsHandle === product.handle ? 'Dölj anmälningar' : 'Se anmälningar' }}
+                  </button>
+                </template>
+                <span v-else>—</span>
+              </td>
+            </tr>
+            <tr v-if="openSignupsHandle === product.handle" class="border-b border-black/6 bg-black/[0.015] last:border-0">
+              <td colspan="6" class="px-4 py-3">
+                <p v-if="loadingSignups && !signupsByHandle[product.handle]" class="text-sm text-lyktan-mute">Laddar…</p>
+                <p v-else-if="!signupsByHandle[product.handle]?.length" class="text-sm text-lyktan-mute">Inga anmälningar ännu.</p>
+                <ul v-else class="grid gap-1 text-sm text-lyktan-ink">
+                  <li v-for="signup in signupsByHandle[product.handle]" :key="signup.email">{{ signup.email }}</li>
+                </ul>
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>

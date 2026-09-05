@@ -35,9 +35,14 @@ export default defineEventHandler(async (event) => {
   const tagsRaw = getField('tags').trim()
   const tags = tagsRaw ? tagsRaw.split(',').map((tag) => tag.trim()).filter(Boolean) : []
   const status = getField('status') === 'DRAFT' ? 'DRAFT' : 'ACTIVE'
+  const releaseDate = getField('releaseDate').trim()
 
   if (!title) {
     throw createError({ statusCode: 400, statusMessage: 'Titel saknas' })
+  }
+
+  if (releaseDate && !/^\d{4}-\d{2}-\d{2}$/.test(releaseDate)) {
+    throw createError({ statusCode: 400, statusMessage: 'Ogiltigt releasedatum' })
   }
 
   if (!Number.isFinite(priceKr) || priceKr < 0) {
@@ -138,7 +143,8 @@ export default defineEventHandler(async (event) => {
       descriptionHtml: descriptionToHtml(description),
       tags,
       status,
-      collectionsToJoin: collectionIds
+      collectionsToJoin: collectionIds,
+      metafields: releaseDate ? [{ namespace: 'custom', key: 'release_date', type: 'date', value: releaseDate }] : undefined
     },
     media: mediaInputs.length ? mediaInputs : undefined
   })

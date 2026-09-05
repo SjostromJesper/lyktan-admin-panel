@@ -32,6 +32,9 @@ export default defineEventHandler(async (event) => {
               title
             }
           }
+          releaseDate: metafield(namespace: "custom", key: "release_date") {
+            value
+          }
         }
       }
     }

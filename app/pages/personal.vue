@@ -13,6 +13,7 @@ type Staff = {
   orders_access?: AccessLevel
   bookings_access?: AccessLevel
   company_access?: AccessLevel
+  products_access?: AccessLevel
   created_at: string
 }
 
@@ -28,7 +29,8 @@ const accessSummary = (person: Staff) => {
     person.schedule_access && person.schedule_access !== 'none' && `Schema (${ACCESS_LABELS[person.schedule_access]})`,
     person.orders_access && person.orders_access !== 'none' && `Beställningar (${ACCESS_LABELS[person.orders_access]})`,
     person.bookings_access && person.bookings_access !== 'none' && `Bordsbokning (${ACCESS_LABELS[person.bookings_access]})`,
-    person.company_access && person.company_access !== 'none' && `Företag (${ACCESS_LABELS[person.company_access]})`
+    person.company_access && person.company_access !== 'none' && `Företag (${ACCESS_LABELS[person.company_access]})`,
+    person.products_access && person.products_access !== 'none' && `Produkter (${ACCESS_LABELS[person.products_access]})`
   ].filter(Boolean)
   return parts.length ? parts.join(', ') : 'Inloggning, ingen behörighet'
 }

@@ -169,6 +169,11 @@ export default defineEventHandler(async (event) => {
         variantInput.compareAtPrice = compareAtPriceKr.toFixed(2)
       }
 
+      // A freshly created variant's inventory item defaults to untracked —
+      // stock quantity is meaningless (and totalInventory stays 0) until
+      // tracking is turned on explicitly.
+      variantInput.inventoryItem = { tracked: true }
+
       const variantData = await shopifyAdminGraphql(`#graphql
         mutation UpdateVariant($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
           productVariantsBulkUpdate(productId: $productId, variants: $variants) {

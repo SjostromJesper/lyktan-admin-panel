@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
   const supabase = useSupabaseAdmin()
 
   const isSuperAdmin = email === SUPER_ADMIN_EMAIL
-  let permissions = { members: 'none', staff: 'none', schedule: 'none', orders: 'none', bookings: 'none', company: 'none', products: 'none' } as const as {
+  let permissions = { members: 'none', staff: 'none', schedule: 'none', orders: 'none', bookings: 'none', company: 'none', products: 'none', analytics: 'none' } as const as {
     members: 'none' | 'view' | 'edit'
     staff: 'none' | 'view' | 'edit'
     schedule: 'none' | 'view' | 'edit'
@@ -24,12 +24,13 @@ export default defineEventHandler(async (event) => {
     bookings: 'none' | 'view' | 'edit'
     company: 'none' | 'view' | 'edit'
     products: 'none' | 'view' | 'edit'
+    analytics: 'none' | 'view' | 'edit'
   }
 
   if (!isSuperAdmin) {
     const { data: staffRow, error: staffError } = await supabase
       .from('staff')
-      .select('active, members_access, staff_access, schedule_access, orders_access, bookings_access, company_access, products_access')
+      .select('active, members_access, staff_access, schedule_access, orders_access, bookings_access, company_access, products_access, analytics_access')
       .eq('email', email)
       .maybeSingle()
 
@@ -48,7 +49,8 @@ export default defineEventHandler(async (event) => {
       orders: (staffRow as any).orders_access,
       bookings: (staffRow as any).bookings_access,
       company: (staffRow as any).company_access,
-      products: (staffRow as any).products_access
+      products: (staffRow as any).products_access,
+      analytics: (staffRow as any).analytics_access
     }
   }
 

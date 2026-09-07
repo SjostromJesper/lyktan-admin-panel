@@ -127,6 +127,7 @@ const belongsToCurrentView = (order: Order) => (view.value === 'klar' ? order.st
 const onOrderUpdated = (updated: Order) => {
   if (!belongsToCurrentView(updated)) {
     orders.value = orders.value.filter((o) => o.id !== updated.id)
+    selectedOrderIds.value.delete(updated.id)
   } else {
     const idx = orders.value.findIndex((o) => o.id === updated.id)
     if (idx !== -1) orders.value[idx] = updated
@@ -136,7 +137,65 @@ const onOrderUpdated = (updated: Order) => {
 
 const onOrderDeleted = (id: string) => {
   orders.value = orders.value.filter((o) => o.id !== id)
+  selectedOrderIds.value.delete(id)
   selectedOrder.value = null
+}
+
+// --- Checkbox selection + copy-to-clipboard ---
+const selectedOrderIds = ref<Set<string>>(new Set())
+
+watch(view, () => {
+  selectedOrderIds.value = new Set()
+})
+
+const toggleOrderSelection = (id: string) => {
+  const next = new Set(selectedOrderIds.value)
+  if (next.has(id)) next.delete(id)
+  else next.add(id)
+  selectedOrderIds.value = next
+}
+
+const allSelected = computed(() => orders.value.length > 0 && orders.value.every((o) => selectedOrderIds.value.has(o.id)))
+
+const toggleSelectAll = () => {
+  selectedOrderIds.value = allSelected.value ? new Set() : new Set(orders.value.map((o) => o.id))
+}
+
+const copyFeedback = ref(false)
+
+const copySelectedList = async () => {
+  const selected = orders.value.filter((o) => selectedOrderIds.value.has(o.id))
+
+  if (!selected.length) return
+
+  const tally = new Map<string, { code: string | null, name: string, count: number }>()
+
+  for (const order of selected) {
+    const key = `${order.product_code || ''}|${order.product_name}`
+
+    if (!tally.has(key)) {
+      tally.set(key, { code: order.product_code, name: order.product_name, count: 0 })
+    }
+
+    tally.get(key)!.count += 1
+  }
+
+  const lines = [...tally.values()]
+    .sort((a, b) => (a.code || '').localeCompare(b.code || '') || a.name.localeCompare(b.name, 'sv-SE'))
+    .map((item) => (item.code ? `${item.count}x  ${item.code}  ${item.name}` : `${item.count}x  ${item.name}`))
+
+  const today = new Intl.DateTimeFormat('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())
+  const text = `Beställning – ${today}\n\n${lines.join('\n')}`
+
+  try {
+    await navigator.clipboard.writeText(text)
+    copyFeedback.value = true
+    setTimeout(() => {
+      copyFeedback.value = false
+    }, 1500)
+  } catch {
+    // Clipboard API can fail on focus/permission grounds — nothing more to do.
+  }
 }
 
 // --- Quick status change (no need to open the modal) ---
@@ -324,23 +383,36 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
       </template>
     </form>
 
-    <div class="mb-4 flex gap-2 text-sm">
-      <button
-        type="button"
-        class="rounded-full border px-4 py-1.5 font-medium transition"
-        :class="view === 'active' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
-        @click="view = 'active'"
-      >
-        Aktiva
-      </button>
-      <button
-        type="button"
-        class="rounded-full border px-4 py-1.5 font-medium transition"
-        :class="view === 'klar' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
-        @click="view = 'klar'"
-      >
-        Historik
-      </button>
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex gap-2 text-sm">
+        <button
+          type="button"
+          class="rounded-full border px-4 py-1.5 font-medium transition"
+          :class="view === 'active' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+          @click="view = 'active'"
+        >
+          Aktiva
+        </button>
+        <button
+          type="button"
+          class="rounded-full border px-4 py-1.5 font-medium transition"
+          :class="view === 'klar' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+          @click="view = 'klar'"
+        >
+          Historik
+        </button>
+      </div>
+
+      <div v-if="selectedOrderIds.size" class="flex items-center gap-3 text-sm">
+        <span class="text-lyktan-mute">{{ selectedOrderIds.size }} valda</span>
+        <button
+          type="button"
+          class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-4 text-sm font-medium text-white transition hover:bg-black"
+          @click="copySelectedList"
+        >
+          {{ copyFeedback ? 'Kopierat!' : 'Kopiera lista' }}
+        </button>
+      </div>
     </div>
 
     <p v-if="loading" class="text-sm text-lyktan-mute">Laddar…</p>
@@ -353,6 +425,9 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
       <table class="w-full min-w-[720px] text-left text-sm">
         <thead>
           <tr class="border-b border-black/8 text-[0.72rem] font-medium text-lyktan-mute">
+            <th class="w-10 px-4 py-3">
+              <input type="checkbox" :checked="allSelected" @click.stop @change="toggleSelectAll">
+            </th>
             <th class="px-4 py-3">Kund</th>
             <th class="px-4 py-3">Produkt</th>
             <th class="px-4 py-3">Pris</th>
@@ -367,6 +442,9 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
             class="cursor-pointer border-b border-black/6 last:border-0 hover:bg-black/[0.02]"
             @click="selectedOrder = order"
           >
+            <td class="px-4 py-3" @click.stop>
+              <input type="checkbox" :checked="selectedOrderIds.has(order.id)" @change="toggleOrderSelection(order.id)">
+            </td>
             <td class="px-4 py-3 font-medium text-lyktan-ink">{{ order.customer_name }}</td>
             <td class="px-4 py-3 text-lyktan-mute">
               {{ order.product_name }}

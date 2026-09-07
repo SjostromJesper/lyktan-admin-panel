@@ -97,12 +97,17 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Hittade inga produktrader i filen' })
   }
 
+  // The sheet can list the same SS-kod more than once (reprints, regional
+  // variants, etc.) — a single upsert statement can't apply ON CONFLICT to
+  // the same key twice, so keep only the last occurrence of each.
+  const dedupedRows = [...new Map(rows.map((row) => [row.ss_code as string, row])).values()]
+
   const supabase = useSupabaseAdmin()
   const BATCH_SIZE = 500
   let imported = 0
 
-  for (let i = 0; i < rows.length; i += BATCH_SIZE) {
-    const batch = rows.slice(i, i + BATCH_SIZE)
+  for (let i = 0; i < dedupedRows.length; i += BATCH_SIZE) {
+    const batch = dedupedRows.slice(i, i + BATCH_SIZE)
     const { error } = await supabase.from('gw_catalog').upsert(batch, { onConflict: 'ss_code' })
 
     if (error) {

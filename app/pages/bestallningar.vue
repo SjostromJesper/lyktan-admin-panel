@@ -66,6 +66,15 @@ const applyMember = (member: { first_name: string, last_name: string, phone: str
   showMemberPicker.value = false
 }
 
+const showCatalogPicker = ref(false)
+
+const applyCatalogItem = (item: { ss_code: string, description: string, price_dealer_kr: number | null }) => {
+  newOrder.value.productCode = item.ss_code
+  newOrder.value.productName = item.description
+  newOrder.value.priceKr = item.price_dealer_kr
+  showCatalogPicker.value = false
+}
+
 const selectSupplier = (supplier: 'games_workshop' | 'asmodee') => {
   newOrder.value.supplier = supplier
   newOrder.value.productLine = ''
@@ -270,8 +279,18 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
       </div>
 
       <template v-if="newOrder.supplier === 'games_workshop'">
+        <div class="mb-6">
+          <button
+            type="button"
+            class="rounded-full border border-black/15 px-4 py-1.5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+            @click="showCatalogPicker = true"
+          >
+            Sök i katalogen
+          </button>
+        </div>
+
         <label class="mb-6 block">
-          <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Klistra in raden från Games Workshop</span>
+          <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Eller klistra in raden från Games Workshop</span>
           <textarea
             v-model="gwPaste"
             rows="2"
@@ -524,6 +543,12 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
       v-if="showMemberPicker"
       @close="showMemberPicker = false"
       @select="applyMember"
+    />
+
+    <GwCatalogPickerModal
+      v-if="showCatalogPicker"
+      @close="showCatalogPicker = false"
+      @select="applyCatalogItem"
     />
   </div>
 </template>

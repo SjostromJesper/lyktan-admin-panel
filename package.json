@@ -13,6 +13,7 @@
     "@supabase/supabase-js": "^2.112.3",
     "@tailwindcss/vite": "^4.3.3",
     "@vite-pwa/nuxt": "^1.1.1",
+    "exceljs": "^4.4.0",
     "jsqr": "^1.4.0",
     "nuxt": "^4.5.2",
     "nuxt-auth-utils": "^0.5.30",

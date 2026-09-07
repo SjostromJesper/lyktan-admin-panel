@@ -307,6 +307,60 @@ const oneOffForCell = (tableId: string, date: Date) => {
   return oneOffEvents.value.filter((e) => e.active && e.event_date === iso && e.table_ids.includes(tableId))
 }
 
+// --- Quick self-booking (staff booking a table for themselves, 1-2 clicks) ---
+const quickBookCell = ref<{ tableId: string, dateIso: string } | null>(null)
+const quickBookTime = ref('10:00')
+const quickBookDuration = ref(2)
+const quickBookSaving = ref(false)
+const quickBookError = ref('')
+
+const defaultQuickBookTime = (date: Date): string => {
+  if (!isSameDate(date, today)) return '10:00'
+
+  const now = new Date()
+  const roundedMinutes = Math.ceil(now.getMinutes() / 30) * 30
+  const hours = (now.getHours() + Math.floor(roundedMinutes / 60)) % 24
+  return `${String(hours).padStart(2, '0')}:${String(roundedMinutes % 60).padStart(2, '0')}`
+}
+
+const openQuickBook = (tableId: string, date: Date) => {
+  quickBookCell.value = { tableId, dateIso: toIsoDate(date) }
+  quickBookTime.value = defaultQuickBookTime(date)
+  quickBookDuration.value = 2
+  quickBookError.value = ''
+}
+
+const closeQuickBook = () => {
+  quickBookCell.value = null
+  quickBookError.value = ''
+}
+
+const confirmQuickBook = async () => {
+  if (!quickBookCell.value) return
+
+  quickBookSaving.value = true
+  quickBookError.value = ''
+
+  try {
+    await $fetch('/api/bookings', {
+      method: 'POST',
+      body: {
+        tableId: quickBookCell.value.tableId,
+        date: quickBookCell.value.dateIso,
+        startTime: quickBookTime.value,
+        durationHours: quickBookDuration.value,
+        partySize: 2
+      }
+    })
+    closeQuickBook()
+    await loadCalendar()
+  } catch (err: any) {
+    quickBookError.value = err?.data?.statusMessage || 'Kunde inte boka bordet'
+  } finally {
+    quickBookSaving.value = false
+  }
+}
+
 const prevWeek = () => { weekStart.value = addDays(weekStart.value, -7) }
 const nextWeek = () => { weekStart.value = addDays(weekStart.value, 7) }
 const goToday = () => { weekStart.value = startOfWeek(new Date()) }
@@ -801,6 +855,47 @@ const onBookingDeleted = () => {
                     >
                       {{ b.start_time.slice(0, 5) }}–{{ b.end_time.slice(0, 5) }} {{ b.customer_name }}
                       <span v-if="b.status === 'pending'" class="opacity-70">(väntar)</span>
+                    </button>
+
+                    <div
+                      v-if="canEditBookings && quickBookCell?.tableId === t.id && quickBookCell?.dateIso === toIsoDate(day)"
+                      class="rounded-lg border border-dashed border-lyktan-ink/30 bg-lyktan-ink/[0.03] p-2 text-[0.75rem]"
+                    >
+                      <input v-model="quickBookTime" type="time" class="mb-1.5 w-full rounded border border-black/15 px-1.5 py-1 text-[0.75rem]">
+                      <div class="mb-1.5 flex gap-1">
+                        <button
+                          v-for="h in [1, 2, 3, 4]"
+                          :key="h"
+                          type="button"
+                          class="flex-1 rounded border px-1 py-1 text-[0.72rem] font-medium transition"
+                          :class="quickBookDuration === h ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+                          @click="quickBookDuration = h"
+                        >
+                          {{ h }}h
+                        </button>
+                      </div>
+                      <p v-if="quickBookError" class="mb-1.5 text-red-600">{{ quickBookError }}</p>
+                      <div class="flex gap-1">
+                        <button type="button" class="flex-1 rounded-lg border border-black/15 px-2 py-1 font-medium text-lyktan-ink transition hover:bg-black/[0.04]" @click="closeQuickBook">
+                          Avbryt
+                        </button>
+                        <button
+                          type="button"
+                          :disabled="quickBookSaving"
+                          class="flex-1 rounded-lg bg-lyktan-ink px-2 py-1 font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+                          @click="confirmQuickBook"
+                        >
+                          {{ quickBookSaving ? '…' : 'Boka' }}
+                        </button>
+                      </div>
+                    </div>
+                    <button
+                      v-else-if="canEditBookings"
+                      type="button"
+                      class="block w-full rounded-lg border border-dashed border-black/15 px-2 py-1 text-center text-[0.75rem] text-lyktan-mute transition hover:border-lyktan-ink/40 hover:text-lyktan-ink"
+                      @click="openQuickBook(t.id, day)"
+                    >
+                      + Boka
                     </button>
                   </div>
                 </td>

@@ -20,6 +20,7 @@ const loading = ref(true)
 const loadError = ref('')
 const searchTerm = ref('')
 const selectedId = ref<string | null>(null)
+const showUploadModal = ref(false)
 let searchDebounce: ReturnType<typeof setTimeout> | undefined
 
 const loadItems = async () => {
@@ -65,7 +66,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         <button type="button" aria-label="Stäng" class="text-lyktan-mute hover:text-lyktan-ink" @click="emit('close')">✕</button>
       </div>
 
-      <div class="border-b border-black/8 p-4">
+      <div class="flex items-center gap-3 border-b border-black/8 p-4">
         <input
           v-model="searchTerm"
           type="search"
@@ -73,13 +74,20 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           placeholder="Sök på namn eller kod…"
           class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm"
         >
+        <button
+          type="button"
+          class="shrink-0 rounded-full border border-black/15 px-4 py-2 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+          @click="showUploadModal = true"
+        >
+          Uppdatera
+        </button>
       </div>
 
       <div class="flex-1 overflow-y-auto">
         <p v-if="loading" class="p-6 text-sm text-lyktan-mute">Laddar…</p>
         <p v-else-if="loadError" class="p-6 text-sm text-red-600">{{ loadError }}</p>
         <p v-else-if="!items.length" class="p-6 text-sm text-lyktan-mute">
-          Inga produkter hittades. <NuxtLink to="/gw-katalog" class="text-lyktan-accent hover:underline" @click="emit('close')">Importera katalogen</NuxtLink> om den är tom.
+          Inga produkter hittades. Klicka <button type="button" class="text-lyktan-accent hover:underline" @click="showUploadModal = true">Uppdatera</button> om katalogen är tom.
         </p>
 
         <ul v-else class="divide-y divide-black/6">
@@ -120,5 +128,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         </button>
       </div>
     </div>
+
+    <GwCatalogUploadModal
+      v-if="showUploadModal"
+      @close="showUploadModal = false"
+      @imported="loadItems"
+    />
   </div>
 </template>

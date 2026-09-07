@@ -1,17 +1,3 @@
-const escapeHtml = (text: string) =>
-  text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-
-const descriptionToHtml = (text: string) =>
-  text
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => `<p>${escapeHtml(line)}</p>`)
-    .join('')
-
 export default defineEventHandler(async (event) => {
   await requireAccess(event, 'products', 'edit')
 

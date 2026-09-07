@@ -149,6 +149,13 @@ const submitAdd = async () => {
   }
 }
 
+// --- Edit product ---
+const editingProductId = ref<string | null>(null)
+
+const openEdit = (product: Product) => {
+  editingProductId.value = product.id.split('/').pop() ?? null
+}
+
 // --- Interest signups (for upcoming-release products) ---
 const openSignupsHandle = ref<string | null>(null)
 const signupsByHandle = ref<Record<string, { email: string, created_at: string }[]>>({})
@@ -317,6 +324,7 @@ const toggleSignups = async (product: Product) => {
             <th class="px-4 py-3">Lager</th>
             <th class="px-4 py-3">Status</th>
             <th class="px-4 py-3">Release</th>
+            <th v-if="canEditProducts" class="px-4 py-3" />
           </tr>
         </thead>
         <tbody>
@@ -355,9 +363,12 @@ const toggleSignups = async (product: Product) => {
                 </template>
                 <span v-else>—</span>
               </td>
+              <td v-if="canEditProducts" class="px-4 py-3 text-right">
+                <button type="button" class="text-sm text-lyktan-accent hover:underline" @click="openEdit(product)">Redigera</button>
+              </td>
             </tr>
             <tr v-if="openSignupsHandle === product.handle" class="border-b border-black/6 bg-black/[0.015] last:border-0">
-              <td colspan="6" class="px-4 py-3">
+              <td :colspan="canEditProducts ? 7 : 6" class="px-4 py-3">
                 <p v-if="loadingSignups && !signupsByHandle[product.handle]" class="text-sm text-lyktan-mute">Laddar…</p>
                 <p v-else-if="!signupsByHandle[product.handle]?.length" class="text-sm text-lyktan-mute">Inga anmälningar ännu.</p>
                 <ul v-else class="grid gap-1 text-sm text-lyktan-ink">
@@ -380,5 +391,13 @@ const toggleSignups = async (product: Product) => {
         {{ loadingMore ? 'Hämtar…' : 'Visa fler' }}
       </button>
     </div>
+
+    <ProductEditModal
+      v-if="editingProductId"
+      :product-id="editingProductId"
+      :collections="collections"
+      @close="editingProductId = null"
+      @updated="loadProducts"
+    />
   </div>
 </template>

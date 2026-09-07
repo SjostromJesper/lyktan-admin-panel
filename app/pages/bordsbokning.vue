@@ -452,7 +452,7 @@ const quickCellClass = (tableId: string, time: string) => {
     return 'cursor-not-allowed bg-red-50 text-red-400'
   }
 
-  return 'bg-lyktan-surface text-lyktan-ink hover:bg-black/[0.08]'
+  return 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
 }
 
 const prevWeek = () => { weekStart.value = addDays(weekStart.value, -7) }
@@ -1020,7 +1020,7 @@ const onBookingDeleted = () => {
           </div>
 
           <div class="mt-3 flex flex-wrap items-center gap-3 text-[0.72rem] text-lyktan-mute">
-            <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-lyktan-surface border border-black/12" /> Ledigt</span>
+            <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm border border-emerald-200 bg-emerald-50" /> Ledigt</span>
             <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-lyktan-ink" /> Valt</span>
             <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm border border-red-200 bg-red-50" /> Bokat</span>
             <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm border border-amber-200 bg-amber-50" /> Stående event</span>

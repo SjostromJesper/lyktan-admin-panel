@@ -4,7 +4,6 @@ const ROUTE_PERMISSIONS: Record<string, 'canViewMembers' | 'canViewStaff' | 'can
   '/schema': 'canViewSchedule',
   '/bestallningar': 'canViewOrders',
   '/webshop-ordrar': 'canViewOrders',
-  '/gw-katalog': 'canViewOrders',
   '/bordsbokning': 'canViewBookings',
   '/foretag': 'canViewCompany',
   '/produkter': 'canViewProducts',

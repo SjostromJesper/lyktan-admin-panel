@@ -11,7 +11,6 @@ const navLinks = computed(() => {
   if (canViewSchedule.value) links.push({ to: '/schema', label: 'Schema' })
   if (canViewOrders.value) links.push({ to: '/bestallningar', label: 'Beställningar' })
   if (canViewOrders.value) links.push({ to: '/webshop-ordrar', label: 'Webshop-ordrar' })
-  if (canViewOrders.value) links.push({ to: '/gw-katalog', label: 'GW-katalog' })
   if (canViewBookings.value) links.push({ to: '/bordsbokning', label: 'Bordsbokning' })
   if (canViewCompany.value) links.push({ to: '/foretag', label: 'Företag' })
   if (canViewProducts.value) links.push({ to: '/produkter', label: 'Produkter' })

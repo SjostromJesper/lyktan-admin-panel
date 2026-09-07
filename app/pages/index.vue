@@ -8,7 +8,6 @@ const tools = computed(() => {
   if (canViewSchedule.value) items.push({ to: '/schema', title: 'Schema', description: 'Planera arbetspass vecka för vecka.' })
   if (canViewOrders.value) items.push({ to: '/bestallningar', title: 'Beställningar', description: 'Hantera kundbeställningar och hämtningar.' })
   if (canViewOrders.value) items.push({ to: '/webshop-ordrar', title: 'Webshop-ordrar', description: 'Se och bocka av beställningar från webshoppen.' })
-  if (canViewOrders.value) items.push({ to: '/gw-katalog', title: 'GW-katalog', description: 'Importera och sök i Games Workshops produktkatalog.' })
   if (canViewBookings.value) items.push({ to: '/bordsbokning', title: 'Bordsbokning', description: 'Hantera bord och bokningar.' })
   if (canViewCompany.value) items.push({ to: '/foretag', title: 'Företag', description: 'Företagsuppgifter och viktiga länkar.' })
   if (canViewProducts.value) items.push({ to: '/produkter', title: 'Produkter', description: 'Skapa och hantera produkter i webshoppen.' })

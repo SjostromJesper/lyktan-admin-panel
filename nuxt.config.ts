@@ -8,6 +8,16 @@ export default defineNuxtConfig({
     preset: 'netlify'
   },
   modules: ['nuxt-auth-utils', '@vite-pwa/nuxt'],
+  // Without an explicit maxAge, the session cookie has no expiry at all —
+  // the browser (and especially a PWA on mobile) treats it as a "closes
+  // when the tab/app closes" cookie, logging staff out after any pause.
+  // 180 days keeps people logged in on their own devices; the login is
+  // still password-protected either way.
+  runtimeConfig: {
+    session: {
+      maxAge: 60 * 60 * 24 * 180
+    }
+  },
   css: ['~/assets/css/main.css'],
   app: {
     head: {

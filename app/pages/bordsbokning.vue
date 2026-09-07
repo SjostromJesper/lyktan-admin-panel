@@ -233,7 +233,7 @@ const onOneOffDeleted = (id: string) => {
 }
 
 // --- Bookings (list) ---
-const bookingDisplay = ref<'lista' | 'kalender'>('lista')
+const bookingDisplay = ref<'lista' | 'kalender' | 'boka'>('lista')
 const view = ref<'active' | 'history'>('active')
 const bookings = ref<Booking[]>([])
 const bookingsLoading = ref(true)
@@ -307,58 +307,152 @@ const oneOffForCell = (tableId: string, date: Date) => {
   return oneOffEvents.value.filter((e) => e.active && e.event_date === iso && e.table_ids.includes(tableId))
 }
 
-// --- Quick self-booking (staff booking a table for themselves, 1-2 clicks) ---
-const quickBookCell = ref<{ tableId: string, dateIso: string } | null>(null)
-const quickBookTime = ref('10:00')
-const quickBookDuration = ref(2)
-const quickBookSaving = ref(false)
-const quickBookError = ref('')
+// --- Quick self-booking (staff booking a table for themselves) ---
+// Same day-overview grid as the storefront's own booking page
+// (web/app/pages/bordsbokning.vue) — same availability endpoint shape,
+// same occupied/free cell styling — just without the name/contact form or
+// deposit payment, since it's the logged-in staff member booking directly.
+type AvailTable = { id: string, name: string, kind: 'bord' | 'rum', capacity: number, priceKr: number | null }
+type OccupiedSlot = { tableId: string, time: string, type: 'booking' | 'event' | 'room-locked', label: string, groupId?: string }
+type OverviewCell = { time: string, colspan: number, occupied: OccupiedSlot | null }
 
-const defaultQuickBookTime = (date: Date): string => {
-  if (!isSameDate(date, today)) return '10:00'
+const quickDate = ref(toIsoDate(new Date()))
+const quickSlotTimes = ref<string[]>([])
+const quickTables = ref<AvailTable[]>([])
+const quickOccupied = ref<OccupiedSlot[]>([])
+const quickLoading = ref(false)
+const quickError = ref('')
 
-  const now = new Date()
-  const roundedMinutes = Math.ceil(now.getMinutes() / 30) * 30
-  const hours = (now.getHours() + Math.floor(roundedMinutes / 60)) % 24
-  return `${String(hours).padStart(2, '0')}:${String(roundedMinutes % 60).padStart(2, '0')}`
-}
+const quickSelectedTableId = ref<string | null>(null)
+const quickSelectedTime = ref<string | null>(null)
+const quickSaving = ref(false)
+const quickSaveError = ref('')
+const quickBookedNotice = ref<{ tableName: string, startTime: string, endTime: string } | null>(null)
 
-const openQuickBook = (tableId: string, date: Date) => {
-  quickBookCell.value = { tableId, dateIso: toIsoDate(date) }
-  quickBookTime.value = defaultQuickBookTime(date)
-  quickBookDuration.value = 2
-  quickBookError.value = ''
-}
+const quickOccupiedMap = computed(() => new Map(quickOccupied.value.map((slot) => [`${slot.tableId}|${slot.time}`, slot])))
+const quickOccupiedAt = (tableId: string, time: string) => quickOccupiedMap.value.get(`${tableId}|${time}`) ?? null
+const quickSelectedTable = computed(() => quickTables.value.find((t) => t.id === quickSelectedTableId.value) ?? null)
 
-const closeQuickBook = () => {
-  quickBookCell.value = null
-  quickBookError.value = ''
-}
-
-const confirmQuickBook = async () => {
-  if (!quickBookCell.value) return
-
-  quickBookSaving.value = true
-  quickBookError.value = ''
+const loadQuickAvailability = async () => {
+  quickSelectedTableId.value = null
+  quickSelectedTime.value = null
+  quickSaveError.value = ''
+  quickBookedNotice.value = null
+  quickLoading.value = true
+  quickError.value = ''
 
   try {
-    await $fetch('/api/bookings', {
-      method: 'POST',
-      body: {
-        tableId: quickBookCell.value.tableId,
-        date: quickBookCell.value.dateIso,
-        startTime: quickBookTime.value,
-        durationHours: quickBookDuration.value,
-        partySize: 2
-      }
+    const res = await $fetch<{ slotTimes: string[], tables: AvailTable[], occupiedSlots: OccupiedSlot[] }>('/api/bookings/availability', {
+      query: { date: quickDate.value },
+      cache: 'no-store'
     })
-    closeQuickBook()
-    await loadCalendar()
+    quickSlotTimes.value = res.slotTimes
+    quickTables.value = res.tables
+    quickOccupied.value = res.occupiedSlots
   } catch (err: any) {
-    quickBookError.value = err?.data?.statusMessage || 'Kunde inte boka bordet'
+    quickSlotTimes.value = []
+    quickTables.value = []
+    quickOccupied.value = []
+    quickError.value = err?.data?.statusMessage || 'Kunde inte hämta lediga bord'
   } finally {
-    quickBookSaving.value = false
+    quickLoading.value = false
   }
+}
+
+watch(quickDate, loadQuickAvailability)
+watch(bookingDisplay, (mode) => { if (mode === 'boka' && !quickTables.value.length) loadQuickAvailability() })
+
+// Groups consecutive slots with the same status into one wide cell instead
+// of repeating the label in every slot — mirrors the storefront's grouping.
+const quickOverviewRows = computed<Map<string, OverviewCell[]>>(() => {
+  const rows = new Map<string, OverviewCell[]>()
+
+  for (const table of quickTables.value) {
+    const cells: OverviewCell[] = []
+
+    for (const time of quickSlotTimes.value) {
+      const occ = quickOccupiedAt(table.id, time)
+      const last = cells[cells.length - 1]
+      const sameAsLast = Boolean(
+        last?.occupied
+        && occ
+        && last.occupied.type === occ.type
+        && (occ.type === 'room-locked' ? true : Boolean(occ.groupId) && last.occupied.groupId === occ.groupId)
+      )
+
+      if (sameAsLast) {
+        last.colspan += 1
+      } else {
+        cells.push({ time, colspan: 1, occupied: occ })
+      }
+    }
+
+    rows.set(table.id, cells)
+  }
+
+  return rows
+})
+
+const selectQuickCell = (tableId: string, time: string) => {
+  if (quickOccupiedAt(tableId, time)) return
+
+  quickSelectedTableId.value = tableId
+  quickSelectedTime.value = time
+  quickSaveError.value = ''
+  quickBookedNotice.value = null
+}
+
+const confirmQuickBooking = async () => {
+  if (!quickSelectedTableId.value || !quickSelectedTime.value) return
+
+  quickSaving.value = true
+  quickSaveError.value = ''
+
+  try {
+    const res = await $fetch<{ tableName: string, endTime: string }>('/api/bookings', {
+      method: 'POST',
+      body: { tableId: quickSelectedTableId.value, date: quickDate.value, startTime: quickSelectedTime.value }
+    })
+    const notice = { tableName: res.tableName, startTime: quickSelectedTime.value, endTime: res.endTime }
+    await loadQuickAvailability()
+    quickBookedNotice.value = notice
+  } catch (err: any) {
+    quickSaveError.value = err?.data?.statusMessage || 'Kunde inte boka bordet'
+  } finally {
+    quickSaving.value = false
+  }
+}
+
+const quickOccupiedTitle = (table: AvailTable, time: string) => {
+  const occupied = quickOccupiedAt(table.id, time)
+
+  if (occupied?.type === 'room-locked') {
+    return 'Rummet går bara att boka när alla andra bord är fullbokade den tiden.'
+  }
+
+  return occupied?.label ?? `${table.name} kl. ${time} — ledigt`
+}
+
+const quickCellClass = (tableId: string, time: string) => {
+  if (quickSelectedTableId.value === tableId && quickSelectedTime.value === time) {
+    return 'bg-lyktan-ink text-white'
+  }
+
+  const occupied = quickOccupiedAt(tableId, time)
+
+  if (occupied?.type === 'event') {
+    return 'cursor-not-allowed bg-amber-50 text-amber-700'
+  }
+
+  if (occupied?.type === 'room-locked') {
+    return 'cursor-not-allowed bg-black/[0.03] text-lyktan-mute'
+  }
+
+  if (occupied) {
+    return 'cursor-not-allowed bg-red-50 text-red-400'
+  }
+
+  return 'bg-lyktan-surface text-lyktan-ink hover:bg-black/[0.08]'
 }
 
 const prevWeek = () => { weekStart.value = addDays(weekStart.value, -7) }
@@ -721,6 +815,15 @@ const onBookingDeleted = () => {
           >
             Kalender
           </button>
+          <button
+            v-if="canEditBookings"
+            type="button"
+            class="rounded-full border px-4 py-1.5 font-medium transition"
+            :class="bookingDisplay === 'boka' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+            @click="bookingDisplay = 'boka'"
+          >
+            Boka
+          </button>
         </div>
       </div>
 
@@ -796,7 +899,7 @@ const onBookingDeleted = () => {
         </div>
       </template>
 
-      <template v-else>
+      <template v-else-if="bookingDisplay === 'kalender'">
         <div class="mb-4 flex flex-wrap items-center gap-3">
           <button type="button" class="shrink-0 rounded-full border border-black/15 px-3 py-1.5 text-sm hover:bg-black/[0.04]" @click="prevWeek">←</button>
           <button type="button" class="shrink-0 rounded-full border border-black/15 px-4 py-1.5 text-sm hover:bg-black/[0.04]" @click="goToday">Idag</button>
@@ -856,53 +959,98 @@ const onBookingDeleted = () => {
                       {{ b.start_time.slice(0, 5) }}–{{ b.end_time.slice(0, 5) }} {{ b.customer_name }}
                       <span v-if="b.status === 'pending'" class="opacity-70">(väntar)</span>
                     </button>
-
-                    <div
-                      v-if="canEditBookings && quickBookCell?.tableId === t.id && quickBookCell?.dateIso === toIsoDate(day)"
-                      class="rounded-lg border border-dashed border-lyktan-ink/30 bg-lyktan-ink/[0.03] p-2 text-[0.75rem]"
-                    >
-                      <input v-model="quickBookTime" type="time" class="mb-1.5 w-full rounded border border-black/15 px-1.5 py-1 text-[0.75rem]">
-                      <div class="mb-1.5 flex gap-1">
-                        <button
-                          v-for="h in [1, 2, 3, 4]"
-                          :key="h"
-                          type="button"
-                          class="flex-1 rounded border px-1 py-1 text-[0.72rem] font-medium transition"
-                          :class="quickBookDuration === h ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
-                          @click="quickBookDuration = h"
-                        >
-                          {{ h }}h
-                        </button>
-                      </div>
-                      <p v-if="quickBookError" class="mb-1.5 text-red-600">{{ quickBookError }}</p>
-                      <div class="flex gap-1">
-                        <button type="button" class="flex-1 rounded-lg border border-black/15 px-2 py-1 font-medium text-lyktan-ink transition hover:bg-black/[0.04]" @click="closeQuickBook">
-                          Avbryt
-                        </button>
-                        <button
-                          type="button"
-                          :disabled="quickBookSaving"
-                          class="flex-1 rounded-lg bg-lyktan-ink px-2 py-1 font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
-                          @click="confirmQuickBook"
-                        >
-                          {{ quickBookSaving ? '…' : 'Boka' }}
-                        </button>
-                      </div>
-                    </div>
-                    <button
-                      v-else-if="canEditBookings"
-                      type="button"
-                      class="block w-full rounded-lg border border-dashed border-black/15 px-2 py-1 text-center text-[0.75rem] text-lyktan-mute transition hover:border-lyktan-ink/40 hover:text-lyktan-ink"
-                      @click="openQuickBook(t.id, day)"
-                    >
-                      + Boka
-                    </button>
                   </div>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
+      </template>
+
+      <template v-else>
+        <div class="mb-4 flex flex-wrap items-center gap-4">
+          <label for="quick-book-date" class="text-sm font-medium text-lyktan-ink">Datum</label>
+          <input
+            id="quick-book-date"
+            v-model="quickDate"
+            type="date"
+            :min="toIsoDate(today)"
+            class="min-h-10 rounded-lg border border-black/12 bg-white px-3 text-sm text-lyktan-ink"
+          >
+        </div>
+
+        <p v-if="quickBookedNotice" class="mb-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+          {{ quickBookedNotice.tableName }} bokat {{ quickBookedNotice.startTime }}–{{ quickBookedNotice.endTime }}!
+        </p>
+
+        <p v-if="quickLoading" class="text-sm text-lyktan-mute">Laddar…</p>
+        <p v-else-if="quickError" class="text-sm text-red-600">{{ quickError }}</p>
+        <p v-else-if="!quickSlotTimes.length || !quickTables.length" class="text-sm text-lyktan-mute">Inga bokningsbara bord den dagen.</p>
+
+        <template v-else>
+          <div class="overflow-x-auto rounded-xl border border-black/12">
+            <table class="w-full min-w-[440px] border-collapse text-sm">
+              <thead>
+                <tr>
+                  <th class="sticky left-0 z-10 border-b border-r border-black/12 bg-lyktan-paper px-3 py-2 text-left text-[0.72rem] font-medium text-lyktan-mute">Bord</th>
+                  <th v-for="time in quickSlotTimes" :key="time" class="border-b border-black/12 px-2 py-2 text-center text-[0.72rem] font-medium text-lyktan-mute">
+                    {{ time }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="table in quickTables" :key="table.id" class="border-b border-black/6 last:border-0">
+                  <td class="sticky left-0 z-10 border-r border-black/12 bg-lyktan-paper px-3 py-2 text-sm font-medium text-lyktan-ink">{{ table.name }}</td>
+                  <td v-for="cell in quickOverviewRows.get(table.id)" :key="cell.time" class="p-1 text-center" :colspan="cell.colspan">
+                    <button
+                      type="button"
+                      :title="quickOccupiedTitle(table, cell.time)"
+                      class="inline-flex h-9 w-full min-w-[3.2rem] items-center justify-center rounded-md px-1 text-[0.68rem] font-medium transition disabled:cursor-not-allowed"
+                      :class="quickCellClass(table.id, cell.time)"
+                      :disabled="Boolean(cell.occupied)"
+                      @click="selectQuickCell(table.id, cell.time)"
+                    >
+                      <span v-if="cell.occupied" class="truncate">{{ cell.occupied.label }}</span>
+                      <span v-else>·</span>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-3 flex flex-wrap items-center gap-3 text-[0.72rem] text-lyktan-mute">
+            <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-lyktan-surface border border-black/12" /> Ledigt</span>
+            <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-lyktan-ink" /> Valt</span>
+            <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm border border-red-200 bg-red-50" /> Bokat</span>
+            <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm border border-amber-200 bg-amber-50" /> Stående event</span>
+            <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm border border-black/12 bg-black/[0.03]" /> Låst</span>
+          </div>
+
+          <div v-if="quickSelectedTable && quickSelectedTime" class="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-black/8 bg-lyktan-paper p-4">
+            <p class="text-sm font-medium text-lyktan-ink">
+              {{ quickSelectedTable.name }} — kl. {{ quickSelectedTime }}
+            </p>
+            <p v-if="quickSaveError" class="text-sm text-red-600">{{ quickSaveError }}</p>
+            <div class="ml-auto flex gap-2">
+              <button
+                type="button"
+                class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-4 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+                @click="quickSelectedTableId = null; quickSelectedTime = null"
+              >
+                Avbryt
+              </button>
+              <button
+                type="button"
+                :disabled="quickSaving"
+                class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+                @click="confirmQuickBooking"
+              >
+                {{ quickSaving ? 'Bokar…' : 'Boka bord' }}
+              </button>
+            </div>
+          </div>
+        </template>
       </template>
     </div>
 

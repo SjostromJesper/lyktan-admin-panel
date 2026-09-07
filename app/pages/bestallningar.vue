@@ -161,6 +161,30 @@ const toggleSelectAll = () => {
   selectedOrderIds.value = allSelected.value ? new Set() : new Set(orders.value.map((o) => o.id))
 }
 
+// Only offer statuses actually present in the current view — e.g. no point
+// showing "Klar" as a quick-select while looking at Aktiva.
+const availableStatuses = computed(() => {
+  const present = new Set(orders.value.map((o) => o.status))
+  return ORDER_STATUSES.filter((s) => present.has(s.value as Order['status']))
+})
+
+const isStatusFullySelected = (status: string) => {
+  const matching = orders.value.filter((o) => o.status === status)
+  return matching.length > 0 && matching.every((o) => selectedOrderIds.value.has(o.id))
+}
+
+const selectByStatus = (status: string) => {
+  const matchingIds = orders.value.filter((o) => o.status === status).map((o) => o.id)
+
+  if (isStatusFullySelected(status)) {
+    const next = new Set(selectedOrderIds.value)
+    for (const id of matchingIds) next.delete(id)
+    selectedOrderIds.value = next
+  } else {
+    selectedOrderIds.value = new Set([...selectedOrderIds.value, ...matchingIds])
+  }
+}
+
 const copyFeedback = ref(false)
 
 const copySelectedList = async () => {
@@ -413,6 +437,20 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
           {{ copyFeedback ? 'Kopierat!' : 'Kopiera lista' }}
         </button>
       </div>
+    </div>
+
+    <div v-if="availableStatuses.length" class="mb-4 flex flex-wrap items-center gap-2 text-sm">
+      <span class="text-[0.72rem] font-medium text-lyktan-mute">Bocka i alla:</span>
+      <button
+        v-for="status in availableStatuses"
+        :key="status.value"
+        type="button"
+        class="rounded-full border px-3 py-1 text-[0.8rem] font-medium transition"
+        :class="isStatusFullySelected(status.value) ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+        @click="selectByStatus(status.value)"
+      >
+        {{ status.label }}
+      </button>
     </div>
 
     <p v-if="loading" class="text-sm text-lyktan-mute">Laddar…</p>

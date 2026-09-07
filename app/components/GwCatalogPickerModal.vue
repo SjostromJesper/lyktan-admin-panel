@@ -104,7 +104,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
                   {{ item.ss_code }}<span v-if="item.system"> · {{ item.system }}</span>
                 </span>
               </span>
-              <span class="shrink-0 text-sm text-lyktan-ink">{{ formatKr(item.price_dealer_kr) }}</span>
+              <span class="shrink-0 text-sm text-lyktan-ink">{{ formatKr(item.price_retail_kr) }}</span>
             </button>
           </li>
         </ul>

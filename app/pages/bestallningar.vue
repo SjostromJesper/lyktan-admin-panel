@@ -68,10 +68,10 @@ const applyMember = (member: { first_name: string, last_name: string, phone: str
 
 const showCatalogPicker = ref(false)
 
-const applyCatalogItem = (item: { ss_code: string, description: string, price_dealer_kr: number | null }) => {
+const applyCatalogItem = (item: { ss_code: string, description: string, price_retail_kr: number | null }) => {
   newOrder.value.productCode = item.ss_code
   newOrder.value.productName = item.description
-  newOrder.value.priceKr = item.price_dealer_kr
+  newOrder.value.priceKr = item.price_retail_kr
   showCatalogPicker.value = false
 }
 

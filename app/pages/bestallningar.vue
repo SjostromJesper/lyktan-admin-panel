@@ -194,6 +194,12 @@ const selectByStatus = (status: string) => {
   }
 }
 
+const selectedTotalKr = computed(() =>
+  orders.value
+    .filter((o) => selectedOrderIds.value.has(o.id))
+    .reduce((sum, o) => sum + (o.price_kr || 0), 0)
+)
+
 const copyFeedback = ref(false)
 
 const copySelectedList = async () => {
@@ -447,7 +453,7 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
       </div>
 
       <div v-if="selectedOrderIds.size" class="flex items-center gap-3 text-sm">
-        <span class="text-lyktan-mute">{{ selectedOrderIds.size }} valda</span>
+        <span class="text-lyktan-mute">{{ selectedOrderIds.size }} valda · {{ formatKr(selectedTotalKr) }}</span>
         <button
           type="button"
           class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-4 text-sm font-medium text-white transition hover:bg-black"

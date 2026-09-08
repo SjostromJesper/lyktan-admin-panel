@@ -255,6 +255,18 @@ const loadBookings = async () => {
 
 watch(view, loadBookings)
 
+const daysUntilLabel = (dateIso: string): string => {
+  const target = new Date(`${dateIso}T00:00:00`)
+  const base = new Date(`${toIsoDate(today)}T00:00:00`)
+  const diffDays = Math.round((target.getTime() - base.getTime()) / 86400000)
+
+  if (diffDays === 0) return 'Idag'
+  if (diffDays === 1) return 'Imorgon'
+  if (diffDays === -1) return 'Igår'
+  if (diffDays > 1) return `om ${diffDays} dagar`
+  return `${Math.abs(diffDays)} dagar sedan`
+}
+
 // --- Bookings (calendar) ---
 const weekStart = ref(startOfWeek(new Date()))
 const weekDays = computed(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart.value, i)))
@@ -873,7 +885,10 @@ const onBookingDeleted = () => {
                 :class="b.member_id ? 'bg-sky-50/60' : ''"
                 @click="selectedBooking = b"
               >
-                <td class="px-4 py-3 font-medium text-lyktan-ink">{{ b.booking_date }}</td>
+                <td class="px-4 py-3 font-medium text-lyktan-ink">
+                  {{ b.booking_date }}
+                  <span class="text-[0.72rem] font-normal text-lyktan-mute">({{ daysUntilLabel(b.booking_date) }})</span>
+                </td>
                 <td class="px-4 py-3 text-lyktan-mute">{{ b.start_time.slice(0, 5) }}–{{ b.end_time.slice(0, 5) }}</td>
                 <td class="px-4 py-3 text-lyktan-mute">{{ b.tables?.name || '—' }}</td>
                 <td class="px-4 py-3 text-lyktan-mute">

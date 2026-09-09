@@ -94,6 +94,32 @@ const newProduct = ref({
   images: [] as File[]
 })
 
+const descriptionFacts = ref('')
+const generatingDescription = ref(false)
+const generateDescriptionError = ref('')
+
+const generateDescription = async () => {
+  if (!newProduct.value.title.trim()) {
+    generateDescriptionError.value = 'Fyll i en titel först'
+    return
+  }
+
+  generatingDescription.value = true
+  generateDescriptionError.value = ''
+
+  try {
+    const res = await $fetch<{ description: string }>('/api/products/generate-description', {
+      method: 'POST',
+      body: { title: newProduct.value.title, facts: descriptionFacts.value }
+    })
+    newProduct.value.description = res.description
+  } catch (err: any) {
+    generateDescriptionError.value = err?.data?.statusMessage || 'Kunde inte generera text'
+  } finally {
+    generatingDescription.value = false
+  }
+}
+
 const onFilesSelected = (event: Event) => {
   const files = (event.target as HTMLInputElement).files
   newProduct.value.images = files ? Array.from(files) : []
@@ -114,6 +140,8 @@ const resetAddForm = () => {
   }
   if (fileInput.value) fileInput.value.value = ''
   addError.value = ''
+  descriptionFacts.value = ''
+  generateDescriptionError.value = ''
 }
 
 const submitAdd = async () => {
@@ -217,9 +245,30 @@ const toggleSignups = async (product: Product) => {
           </label>
 
           <label class="block sm:col-span-2">
-            <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Beskrivning</span>
-            <textarea v-model="newProduct.description" rows="4" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm" placeholder="Valfritt — en rad per stycke" />
+            <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Nyckelfakta för AI-genererad beskrivning (valfritt)</span>
+            <textarea
+              v-model="descriptionFacts"
+              rows="2"
+              class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm"
+              placeholder="T.ex. vad som ingår, antal, format, tema — punktlista eller löptext"
+            />
           </label>
+
+          <div class="block sm:col-span-2">
+            <div class="mb-1 flex items-center justify-between">
+              <span class="text-[0.72rem] font-medium text-lyktan-mute">Beskrivning</span>
+              <button
+                type="button"
+                :disabled="generatingDescription"
+                class="text-[0.72rem] font-medium text-lyktan-accent hover:underline disabled:cursor-not-allowed disabled:opacity-40"
+                @click="generateDescription"
+              >
+                {{ generatingDescription ? 'Genererar…' : 'Generera med AI' }}
+              </button>
+            </div>
+            <textarea v-model="newProduct.description" rows="4" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm" placeholder="Valfritt — en rad per stycke" />
+            <p v-if="generateDescriptionError" class="mt-1 text-[0.72rem] text-red-600">{{ generateDescriptionError }}</p>
+          </div>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Pris (kr)</span>

@@ -19,6 +19,8 @@ const weekRangeLabel = computed(() => {
   return `${formatDayShort(first)} – ${formatDayShort(last)} ${last.getFullYear()}`
 })
 
+const allStaffList = ref<Staff[]>([])
+
 const load = async () => {
   loading.value = true
   loadError.value = ''
@@ -30,6 +32,7 @@ const load = async () => {
         query: { from: toIsoDate(weekDays.value[0]), to: toIsoDate(weekDays.value[6]) }
       })
     ])
+    allStaffList.value = staffRes.staff
     staffList.value = staffRes.staff.filter((s) => s.active)
     shifts.value = shiftsRes.shifts
   } catch (err: any) {
@@ -67,6 +70,112 @@ const formatHours = (minutes: number) => {
 }
 
 const totalMinutesAllStaff = computed(() => staffList.value.reduce((sum, s) => sum + minutesForStaff(s.id), 0))
+
+// --- Monthly stats modal ---
+const statsOpen = ref(false)
+const statsLoading = ref(false)
+const statsError = ref('')
+const statsShifts = ref<Shift[]>([])
+
+const toMonthValue = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+
+const statsMonth = ref(toMonthValue(new Date()))
+
+const monthOptions = computed(() => {
+  const options: { value: string, label: string }[] = []
+  const now = new Date()
+
+  for (let i = 0; i < 12; i++) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const label = new Intl.DateTimeFormat('sv-SE', { month: 'long', year: 'numeric' }).format(date)
+    options.push({ value: toMonthValue(date), label: label.charAt(0).toUpperCase() + label.slice(1) })
+  }
+
+  return options
+})
+
+const monthRange = (monthValue: string) => {
+  const [year, month] = monthValue.split('-').map(Number)
+  const start = new Date(year!, month! - 1, 1)
+  const end = new Date(year!, month!, 0)
+  return { from: toIsoDate(start), to: toIsoDate(end) }
+}
+
+const loadStats = async () => {
+  statsLoading.value = true
+  statsError.value = ''
+
+  try {
+    const { from, to } = monthRange(statsMonth.value)
+    const res = await $fetch<{ shifts: Shift[] }>('/api/shifts', { query: { from, to } })
+    statsShifts.value = res.shifts
+  } catch (err: any) {
+    statsError.value = err?.data?.statusMessage || 'Kunde inte hämta statistiken'
+    statsShifts.value = []
+  } finally {
+    statsLoading.value = false
+  }
+}
+
+const openStats = () => {
+  statsMonth.value = toMonthValue(new Date())
+  statsOpen.value = true
+  loadStats()
+}
+
+watch(statsMonth, () => { if (statsOpen.value) loadStats() })
+
+const staffNameById = computed(() => new Map(allStaffList.value.map((s) => [s.id, s.name])))
+
+const statsByStaff = computed(() => {
+  const byStaff = new Map<string, { staffId: string, name: string, minutes: number, shiftCount: number, days: Set<string> }>()
+
+  for (const shift of statsShifts.value) {
+    if (!byStaff.has(shift.staff_id)) {
+      byStaff.set(shift.staff_id, {
+        staffId: shift.staff_id,
+        name: staffNameById.value.get(shift.staff_id) || 'Okänd',
+        minutes: 0,
+        shiftCount: 0,
+        days: new Set()
+      })
+    }
+
+    const entry = byStaff.get(shift.staff_id)!
+    entry.minutes += minutesForShift(shift)
+    entry.shiftCount += 1
+    entry.days.add(shift.shift_date)
+  }
+
+  return [...byStaff.values()]
+    .map((entry) => ({
+      staffId: entry.staffId,
+      name: entry.name,
+      minutes: entry.minutes,
+      shiftCount: entry.shiftCount,
+      daysWorked: entry.days.size,
+      avgMinutesPerShift: entry.shiftCount ? Math.round(entry.minutes / entry.shiftCount) : 0
+    }))
+    .sort((a, b) => b.minutes - a.minutes)
+})
+
+const statsTotalMinutes = computed(() => statsShifts.value.reduce((sum, s) => sum + minutesForShift(s), 0))
+const statsTotalShifts = computed(() => statsShifts.value.length)
+
+const busiestWeekdayLabel = computed(() => {
+  if (!statsShifts.value.length) return '—'
+
+  const minutesByWeekday = new Map<number, number>()
+
+  for (const shift of statsShifts.value) {
+    const jsDay = new Date(`${shift.shift_date}T00:00:00`).getDay()
+    const weekday = jsDay === 0 ? 6 : jsDay - 1
+    minutesByWeekday.set(weekday, (minutesByWeekday.get(weekday) ?? 0) + minutesForShift(shift))
+  }
+
+  const [busiestWeekday] = [...minutesByWeekday.entries()].sort((a, b) => b[1] - a[1])[0] ?? [null]
+  return busiestWeekday === null ? '—' : WEEKDAY_LABELS[busiestWeekday]
+})
 
 // --- Copy previous week ---
 const copying = ref(false)
@@ -278,6 +387,13 @@ const deleteShift = async () => {
         >
           {{ copying ? 'Kopierar…' : 'Kopiera förra veckan' }}
         </button>
+        <button
+          type="button"
+          class="shrink-0 whitespace-nowrap rounded-full border border-black/15 px-4 py-1.5 text-sm hover:bg-black/[0.04]"
+          @click="openStats"
+        >
+          Månadsstatistik
+        </button>
       </div>
     </div>
 
@@ -412,6 +528,69 @@ const deleteShift = async () => {
           >
             Ta bort pass
           </button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="statsOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4" @click.self="statsOpen = false">
+      <div class="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-lyktan-paper shadow-xl">
+        <div class="flex items-center justify-between border-b border-black/8 p-6 pb-4">
+          <h2 class="text-lg font-semibold text-lyktan-ink">Månadsstatistik</h2>
+          <button type="button" aria-label="Stäng" class="text-lyktan-mute hover:text-lyktan-ink" @click="statsOpen = false">✕</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 pt-4">
+          <label class="block">
+            <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Månad</span>
+            <select v-model="statsMonth" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <option v-for="opt in monthOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+            </select>
+          </label>
+
+          <p v-if="statsLoading" class="mt-4 text-sm text-lyktan-mute">Laddar…</p>
+          <p v-else-if="statsError" class="mt-4 text-sm text-red-600">{{ statsError }}</p>
+
+          <template v-else>
+            <div class="mt-4 grid grid-cols-3 gap-3">
+              <div class="rounded-xl border border-black/8 p-3 text-center">
+                <p class="text-lg font-semibold text-lyktan-ink">{{ formatHours(statsTotalMinutes) }}</p>
+                <p class="text-[0.68rem] text-lyktan-mute">Totalt schemalagt</p>
+              </div>
+              <div class="rounded-xl border border-black/8 p-3 text-center">
+                <p class="text-lg font-semibold text-lyktan-ink">{{ statsTotalShifts }}</p>
+                <p class="text-[0.68rem] text-lyktan-mute">Antal pass</p>
+              </div>
+              <div class="rounded-xl border border-black/8 p-3 text-center">
+                <p class="text-lg font-semibold text-lyktan-ink">{{ busiestWeekdayLabel }}</p>
+                <p class="text-[0.68rem] text-lyktan-mute">Mest schemalagd dag</p>
+              </div>
+            </div>
+
+            <p v-if="!statsByStaff.length" class="mt-4 text-sm text-lyktan-mute">Inga pass schemalagda den månaden.</p>
+
+            <div v-else class="mt-4 overflow-hidden rounded-xl border border-black/8">
+              <table class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b border-black/8 text-[0.68rem] font-medium text-lyktan-mute">
+                    <th class="px-3 py-2">Personal</th>
+                    <th class="px-3 py-2 text-right">Timmar</th>
+                    <th class="px-3 py-2 text-right">Pass</th>
+                    <th class="px-3 py-2 text-right">Snitt/pass</th>
+                    <th class="px-3 py-2 text-right">Dagar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="entry in statsByStaff" :key="entry.staffId" class="border-b border-black/6 text-lyktan-ink last:border-0">
+                    <td class="px-3 py-2 font-medium">{{ entry.name }}</td>
+                    <td class="px-3 py-2 text-right">{{ formatHours(entry.minutes) }}</td>
+                    <td class="px-3 py-2 text-right">{{ entry.shiftCount }}</td>
+                    <td class="px-3 py-2 text-right">{{ formatHours(entry.avgMinutesPerShift) }}</td>
+                    <td class="px-3 py-2 text-right">{{ entry.daysWorked }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </template>
         </div>
       </div>
     </div>

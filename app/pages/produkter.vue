@@ -192,6 +192,31 @@ const openSignupsHandle = ref<string | null>(null)
 const signupsByHandle = ref<Record<string, { email: string, created_at: string }[]>>({})
 const loadingSignups = ref(false)
 
+// --- Quick status change from the table ---
+const statusUpdatingId = ref<string | null>(null)
+const statusErrorById = ref<Record<string, string>>({})
+
+const updateProductStatus = async (product: Product, status: Product['status']) => {
+  if (status === product.status) return
+
+  const previousStatus = product.status
+  statusUpdatingId.value = product.id
+  delete statusErrorById.value[product.id]
+  product.status = status
+
+  try {
+    await $fetch(`/api/products/${product.id.split('/').pop()}/status`, {
+      method: 'PATCH',
+      body: { status }
+    })
+  } catch (err: any) {
+    product.status = previousStatus
+    statusErrorById.value[product.id] = err?.data?.statusMessage || 'Kunde inte ändra status'
+  } finally {
+    statusUpdatingId.value = null
+  }
+}
+
 const toggleSignups = async (product: Product) => {
   if (openSignupsHandle.value === product.handle) {
     openSignupsHandle.value = null
@@ -402,12 +427,26 @@ const toggleSignups = async (product: Product) => {
               <td class="px-4 py-3">{{ formatKr(Number(product.priceRangeV2.minVariantPrice.amount)) }}</td>
               <td class="px-4 py-3">{{ product.totalInventory }}</td>
               <td class="px-4 py-3">
+                <select
+                  v-if="canEditProducts"
+                  :value="product.status"
+                  :disabled="statusUpdatingId === product.id"
+                  class="rounded-full border-0 px-2.5 py-1 text-[0.72rem] font-medium disabled:cursor-not-allowed disabled:opacity-60"
+                  :class="product.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-700' : 'bg-black/[0.04] text-lyktan-mute'"
+                  @change="updateProductStatus(product, ($event.target as HTMLSelectElement).value as Product['status'])"
+                >
+                  <option value="ACTIVE">Aktiv</option>
+                  <option value="DRAFT">Utkast</option>
+                  <option value="ARCHIVED">Arkiverad</option>
+                </select>
                 <span
+                  v-else
                   class="rounded-full px-2.5 py-1 text-[0.72rem] font-medium"
                   :class="product.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-700' : 'bg-black/[0.04] text-lyktan-mute'"
                 >
                   {{ STATUS_LABELS[product.status] }}
                 </span>
+                <p v-if="statusErrorById[product.id]" class="mt-1 text-[0.68rem] text-red-600">{{ statusErrorById[product.id] }}</p>
               </td>
               <td class="px-4 py-3 text-lyktan-mute">
                 <template v-if="product.releaseDate?.value">

@@ -27,7 +27,8 @@ const form = ref({
   collectionIds: [] as string[],
   tags: '',
   status: 'ACTIVE' as 'ACTIVE' | 'DRAFT',
-  releaseDate: ''
+  releaseDate: '',
+  inStoreOnly: false
 })
 
 const existingImages = ref<ExistingImage[]>([])
@@ -50,7 +51,8 @@ const loadProduct = async () => {
       collectionIds: res.product.collectionIds,
       tags: res.product.tags,
       status: res.product.status,
-      releaseDate: res.product.releaseDate
+      releaseDate: res.product.releaseDate,
+      inStoreOnly: res.product.inStoreOnly
     }
     existingImages.value = res.product.images
   } catch (err: any) {
@@ -90,6 +92,7 @@ const submit = async () => {
     formData.append('tags', form.value.tags.trim())
     formData.append('status', form.value.status)
     formData.append('releaseDate', form.value.releaseDate)
+    formData.append('inStoreOnly', String(form.value.inStoreOnly))
     for (const id of form.value.collectionIds) formData.append('collectionIds', id)
     for (const id of imagesToDelete.value) formData.append('deleteImageIds', id)
     for (const file of newImageFiles.value) formData.append('images', file)
@@ -230,6 +233,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
                 Utkast
               </button>
             </div>
+          </div>
+
+          <div class="block">
+            <span class="mb-2 block text-[0.72rem] font-medium text-lyktan-mute">Försäljning</span>
+            <label class="flex items-center gap-2 text-sm text-lyktan-ink">
+              <input v-model="form.inStoreOnly" type="checkbox" class="h-4 w-4 rounded border-black/15">
+              Endast i butik (går inte att köpa i webshoppen)
+            </label>
           </div>
         </form>
 

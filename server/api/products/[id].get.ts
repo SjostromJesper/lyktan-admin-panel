@@ -39,6 +39,9 @@ export default defineEventHandler(async (event) => {
         releaseDate: metafield(namespace: "custom", key: "release_date") {
           value
         }
+        inStoreOnly: metafield(namespace: "custom", key: "in_store_only") {
+          value
+        }
       }
     }
   `, { id: productId })
@@ -63,6 +66,7 @@ export default defineEventHandler(async (event) => {
       inventoryQuantity: variant?.inventoryQuantity ?? 0,
       collectionIds: (product.collections?.nodes ?? []).map((node: any) => node.id),
       releaseDate: product.releaseDate?.value ?? '',
+      inStoreOnly: product.inStoreOnly?.value === 'true',
       images: (product.media?.nodes ?? [])
         .filter((node: any) => node.image)
         .map((node: any) => ({ id: node.id, url: node.image.url, altText: node.image.altText }))

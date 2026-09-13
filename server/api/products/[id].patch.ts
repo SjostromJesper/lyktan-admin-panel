@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
   const tags = tagsRaw ? tagsRaw.split(',').map((tag) => tag.trim()).filter(Boolean) : []
   const status = getField('status') === 'DRAFT' ? 'DRAFT' : 'ACTIVE'
   const releaseDate = getField('releaseDate').trim()
+  const inStoreOnly = getField('inStoreOnly') === 'true'
 
   if (!title) {
     throw createError({ statusCode: 400, statusMessage: 'Titel saknas' })
@@ -65,6 +66,9 @@ export default defineEventHandler(async (event) => {
           }
         }
         releaseDate: metafield(namespace: "custom", key: "release_date") {
+          id
+        }
+        inStoreOnly: metafield(namespace: "custom", key: "in_store_only") {
           id
         }
       }
@@ -182,6 +186,27 @@ export default defineEventHandler(async (event) => {
 
     if (metafieldDeleteErrors.length) {
       warnings.push(`Releasedatum kunde inte tas bort: ${metafieldDeleteErrors.map((entry: any) => entry.message).join(', ')}`)
+    }
+  }
+
+  if (inStoreOnly) {
+    metafields.push({ namespace: 'custom', key: 'in_store_only', type: 'boolean', value: 'true' })
+  } else if (current.inStoreOnly?.id) {
+    const metafieldDeleteData = await shopifyAdminGraphql(`#graphql
+      mutation DeleteInStoreOnly($metafields: [MetafieldIdentifierInput!]!) {
+        metafieldsDelete(metafields: $metafields) {
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `, { metafields: [{ ownerId: productId, namespace: 'custom', key: 'in_store_only' }] })
+
+    const metafieldDeleteErrors = metafieldDeleteData.metafieldsDelete?.userErrors ?? []
+
+    if (metafieldDeleteErrors.length) {
+      warnings.push(`"Endast i butik" kunde inte tas bort: ${metafieldDeleteErrors.map((entry: any) => entry.message).join(', ')}`)
     }
   }
 

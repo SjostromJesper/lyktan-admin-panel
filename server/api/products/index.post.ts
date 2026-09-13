@@ -22,6 +22,7 @@ export default defineEventHandler(async (event) => {
   const tags = tagsRaw ? tagsRaw.split(',').map((tag) => tag.trim()).filter(Boolean) : []
   const status = getField('status') === 'DRAFT' ? 'DRAFT' : 'ACTIVE'
   const releaseDate = getField('releaseDate').trim()
+  const inStoreOnly = getField('inStoreOnly') === 'true'
 
   if (!title) {
     throw createError({ statusCode: 400, statusMessage: 'Titel saknas' })
@@ -105,6 +106,16 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  const metafields: { namespace: string, key: string, type: string, value: string }[] = []
+
+  if (releaseDate) {
+    metafields.push({ namespace: 'custom', key: 'release_date', type: 'date', value: releaseDate })
+  }
+
+  if (inStoreOnly) {
+    metafields.push({ namespace: 'custom', key: 'in_store_only', type: 'boolean', value: 'true' })
+  }
+
   const createData = await shopifyAdminGraphql(`#graphql
     mutation CreateProduct($product: ProductCreateInput!, $media: [CreateMediaInput!]) {
       productCreate(product: $product, media: $media) {
@@ -130,7 +141,7 @@ export default defineEventHandler(async (event) => {
       tags,
       status,
       collectionsToJoin: collectionIds,
-      metafields: releaseDate ? [{ namespace: 'custom', key: 'release_date', type: 'date', value: releaseDate }] : undefined
+      metafields: metafields.length ? metafields : undefined
     },
     media: mediaInputs.length ? mediaInputs : undefined
   })

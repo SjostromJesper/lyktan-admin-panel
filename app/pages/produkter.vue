@@ -91,6 +91,7 @@ const newProduct = ref({
   tags: '',
   status: 'ACTIVE' as 'ACTIVE' | 'DRAFT',
   releaseDate: '',
+  inStoreOnly: false,
   images: [] as File[]
 })
 
@@ -136,6 +137,7 @@ const resetAddForm = () => {
     tags: '',
     status: 'ACTIVE',
     releaseDate: '',
+    inStoreOnly: false,
     images: []
   }
   if (fileInput.value) fileInput.value.value = ''
@@ -159,6 +161,7 @@ const submitAdd = async () => {
     formData.append('tags', newProduct.value.tags.trim())
     formData.append('status', newProduct.value.status)
     formData.append('releaseDate', newProduct.value.releaseDate)
+    formData.append('inStoreOnly', String(newProduct.value.inStoreOnly))
     for (const id of newProduct.value.collectionIds) formData.append('collectionIds', id)
     for (const file of newProduct.value.images) formData.append('images', file)
 
@@ -337,6 +340,14 @@ const toggleSignups = async (product: Product) => {
                 Utkast
               </button>
             </div>
+          </div>
+
+          <div class="block">
+            <span class="mb-2 block text-[0.72rem] font-medium text-lyktan-mute">Försäljning</span>
+            <label class="flex items-center gap-2 text-sm text-lyktan-ink">
+              <input v-model="newProduct.inStoreOnly" type="checkbox" class="h-4 w-4 rounded border-black/15">
+              Endast i butik (går inte att köpa i webshoppen)
+            </label>
           </div>
         </div>
 

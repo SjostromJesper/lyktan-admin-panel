@@ -74,16 +74,16 @@ const itemsSummary = (items: Order['items']) =>
     <div class="mb-3 flex gap-2 text-sm">
       <button
         type="button"
-        class="rounded-full border px-4 py-1.5 font-medium transition"
-        :class="category === 'other' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+        class="rounded-lg border px-4 py-1.5 font-medium transition"
+        :class="category === 'other' ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
         @click="category = 'other'"
       >
         Produkter
       </button>
       <button
         type="button"
-        class="rounded-full border px-4 py-1.5 font-medium transition"
-        :class="category === 'event' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+        class="rounded-lg border px-4 py-1.5 font-medium transition"
+        :class="category === 'event' ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
         @click="category = 'event'"
       >
         Event
@@ -93,16 +93,16 @@ const itemsSummary = (items: Order['items']) =>
     <div class="mb-4 flex gap-2 text-sm">
       <button
         type="button"
-        class="rounded-full border px-4 py-1.5 font-medium transition"
-        :class="view === 'active' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+        class="rounded-lg border px-4 py-1.5 font-medium transition"
+        :class="view === 'active' ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
         @click="view = 'active'"
       >
         Att hämta ut
       </button>
       <button
         type="button"
-        class="rounded-full border px-4 py-1.5 font-medium transition"
-        :class="view === 'klar' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+        class="rounded-lg border px-4 py-1.5 font-medium transition"
+        :class="view === 'klar' ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
         @click="view = 'klar'"
       >
         Avbockade
@@ -110,15 +110,15 @@ const itemsSummary = (items: Order['items']) =>
     </div>
 
     <p v-if="loading" class="text-sm text-lyktan-mute">Laddar…</p>
-    <p v-else-if="loadError" class="text-sm text-red-600">{{ loadError }}</p>
+    <p v-else-if="loadError" class="text-sm text-[var(--bad)]">{{ loadError }}</p>
     <p v-else-if="!visibleOrders.length" class="text-sm text-lyktan-mute">
       {{ view === 'active' ? 'Inga beställningar att hämta ut.' : 'Inga avbockade beställningar ännu.' }}
     </p>
 
-    <div v-else class="overflow-x-auto rounded-2xl border border-black/8 bg-lyktan-paper">
+    <div v-else class="overflow-x-auto rounded-2xl border border-[var(--line)] bg-lyktan-paper">
       <table class="w-full min-w-[760px] text-left text-sm">
         <thead>
-          <tr class="border-b border-black/8 text-[0.72rem] font-medium text-lyktan-mute">
+          <tr class="border-b border-[var(--line)] text-[0.72rem] font-medium text-lyktan-mute">
             <th v-if="canEditOrders" class="px-4 py-3" />
             <th class="px-4 py-3">Order</th>
             <th class="px-4 py-3">Kund</th>
@@ -128,12 +128,12 @@ const itemsSummary = (items: Order['items']) =>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="order in visibleOrders" :key="order.id" class="border-b border-black/6 last:border-0">
+          <tr v-for="order in visibleOrders" :key="order.id" class="border-b border-[var(--line)] last:border-0">
             <td v-if="canEditOrders" class="px-4 py-3">
               <button
                 type="button"
                 :disabled="savingId === order.id"
-                class="rounded-full border border-black/15 px-3 py-1.5 text-[0.8rem] font-medium text-lyktan-ink transition hover:bg-black/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
+                class="rounded-lg border border-[var(--line)] px-3 py-1.5 text-[0.8rem] font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)] disabled:cursor-not-allowed disabled:opacity-40"
                 @click="setChecked(order, view === 'active')"
               >
                 {{ view === 'active' ? 'Levererad' : 'Ångra' }}

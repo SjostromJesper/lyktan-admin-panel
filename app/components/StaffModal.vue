@@ -15,6 +15,8 @@ type Staff = {
   company_access?: AccessLevel
   products_access?: AccessLevel
   analytics_access?: AccessLevel
+  store_credit_access?: AccessLevel
+  kortinkop_access?: AccessLevel
   created_at: string
 }
 
@@ -97,7 +99,9 @@ const accessDraft = ref({
   bookingsAccess: 'none' as AccessLevel,
   companyAccess: 'none' as AccessLevel,
   productsAccess: 'none' as AccessLevel,
-  analyticsAccess: 'none' as AccessLevel
+  analyticsAccess: 'none' as AccessLevel,
+  storeCreditAccess: 'none' as AccessLevel,
+  kortinkopAccess: 'none' as AccessLevel
 })
 
 watch(staff, (s) => {
@@ -111,7 +115,9 @@ watch(staff, (s) => {
     bookingsAccess: s.bookings_access || 'none',
     companyAccess: s.company_access || 'none',
     productsAccess: s.products_access || 'none',
-    analyticsAccess: s.analytics_access || 'none'
+    analyticsAccess: s.analytics_access || 'none',
+    storeCreditAccess: s.store_credit_access || 'none',
+    kortinkopAccess: s.kortinkop_access || 'none'
   }
 }, { immediate: true })
 
@@ -189,12 +195,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         <div class="space-y-4">
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Namn</span>
-            <input v-model="editDraft.name" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="editDraft.name" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Roll</span>
-            <input v-model="editDraft.role" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm" placeholder="T.ex. Butikssäljare">
+            <input v-model="editDraft.role" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm" placeholder="T.ex. Butikssäljare">
           </label>
 
           <label class="flex items-center gap-2 text-sm text-lyktan-mute">
@@ -203,13 +209,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           </label>
         </div>
 
-        <p v-if="error" class="mt-3 text-sm text-red-600">{{ error }}</p>
+        <p v-if="error" class="mt-3 text-sm text-[var(--bad)]">{{ error }}</p>
 
         <div class="mt-5 flex items-center gap-3">
           <button
             type="button"
             :disabled="saving"
-            class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
             @click="save"
           >
             {{ saving ? 'Sparar…' : 'Spara ändringar' }}
@@ -218,14 +224,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <button
             type="button"
             :disabled="deleting"
-            class="ml-auto text-sm text-red-600 hover:underline disabled:opacity-40"
+            class="ml-auto text-sm text-[var(--bad)] hover:underline disabled:opacity-40"
             @click="deleteStaff"
           >
             Radera person
           </button>
         </div>
 
-        <div class="mt-6 rounded-2xl border border-black/8 p-5">
+        <div class="mt-6 rounded-2xl border border-[var(--line)] p-5">
           <h2 class="mb-1 text-sm font-semibold text-lyktan-ink">Åtkomst till adminpanelen</h2>
           <p class="mb-4 text-[0.72rem] text-lyktan-mute">
             Välj vad {{ staff.name }} ska kunna se eller redigera per del. Utan e-post och lösenord kan personen inte logga in.
@@ -234,75 +240,87 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <div class="space-y-4">
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">E-post</span>
-              <input v-model="accessDraft.email" type="email" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <input v-model="accessDraft.email" type="email" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             </label>
 
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">
                 {{ hasAccessSet ? 'Nytt lösenord (lämna tomt för att behålla nuvarande)' : 'Lösenord' }}
               </span>
-              <input v-model="accessDraft.password" type="text" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <input v-model="accessDraft.password" type="text" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             </label>
 
             <div class="grid grid-cols-2 gap-3">
               <label class="block">
                 <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Medlemmar</span>
-                <select v-model="accessDraft.membersAccess" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+                <select v-model="accessDraft.membersAccess" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
                   <option v-for="(label, key) in ACCESS_LABELS" :key="key" :value="key">{{ label }}</option>
                 </select>
               </label>
               <label class="block">
                 <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Personal</span>
-                <select v-model="accessDraft.staffAccess" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+                <select v-model="accessDraft.staffAccess" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
                   <option v-for="(label, key) in ACCESS_LABELS" :key="key" :value="key">{{ label }}</option>
                 </select>
               </label>
               <label class="block">
                 <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Schema</span>
-                <select v-model="accessDraft.scheduleAccess" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+                <select v-model="accessDraft.scheduleAccess" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
                   <option v-for="(label, key) in ACCESS_LABELS" :key="key" :value="key">{{ label }}</option>
                 </select>
               </label>
               <label class="block">
                 <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Beställningar</span>
-                <select v-model="accessDraft.ordersAccess" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+                <select v-model="accessDraft.ordersAccess" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
                   <option v-for="(label, key) in ACCESS_LABELS" :key="key" :value="key">{{ label }}</option>
                 </select>
               </label>
               <label class="block">
                 <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Bordsbokning</span>
-                <select v-model="accessDraft.bookingsAccess" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+                <select v-model="accessDraft.bookingsAccess" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
                   <option v-for="(label, key) in ACCESS_LABELS" :key="key" :value="key">{{ label }}</option>
                 </select>
               </label>
               <label class="block">
                 <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Företag</span>
-                <select v-model="accessDraft.companyAccess" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+                <select v-model="accessDraft.companyAccess" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
                   <option v-for="(label, key) in ACCESS_LABELS" :key="key" :value="key">{{ label }}</option>
                 </select>
               </label>
               <label class="block">
                 <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Produkter</span>
-                <select v-model="accessDraft.productsAccess" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+                <select v-model="accessDraft.productsAccess" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
                   <option v-for="(label, key) in ACCESS_LABELS" :key="key" :value="key">{{ label }}</option>
                 </select>
               </label>
               <label class="block">
                 <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Statistik</span>
-                <select v-model="accessDraft.analyticsAccess" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+                <select v-model="accessDraft.analyticsAccess" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
+                  <option v-for="(label, key) in ACCESS_LABELS" :key="key" :value="key">{{ label }}</option>
+                </select>
+              </label>
+              <label class="block">
+                <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Store credit</span>
+                <select v-model="accessDraft.storeCreditAccess" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
+                  <option v-for="(label, key) in ACCESS_LABELS" :key="key" :value="key">{{ label }}</option>
+                </select>
+              </label>
+              <label class="block">
+                <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Kortinköp</span>
+                <select v-model="accessDraft.kortinkopAccess" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
                   <option v-for="(label, key) in ACCESS_LABELS" :key="key" :value="key">{{ label }}</option>
                 </select>
               </label>
             </div>
           </div>
 
-          <p v-if="accessError" class="mt-3 text-sm text-red-600">{{ accessError }}</p>
+          <p v-if="accessError" class="mt-3 text-sm text-[var(--bad)]">{{ accessError }}</p>
 
           <div class="mt-4 flex items-center gap-3">
             <button
               type="button"
               :disabled="accessSaving"
-              class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+              class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
               @click="saveAccess"
             >
               {{ accessSaving ? 'Sparar…' : (hasAccessSet ? 'Uppdatera åtkomst' : 'Ge åtkomst') }}
@@ -312,7 +330,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
               v-if="hasAccessSet"
               type="button"
               :disabled="accessSaving"
-              class="ml-auto text-sm text-red-600 hover:underline disabled:opacity-40"
+              class="ml-auto text-sm text-[var(--bad)] hover:underline disabled:opacity-40"
               @click="revokeAccess"
             >
               Ta bort inloggning

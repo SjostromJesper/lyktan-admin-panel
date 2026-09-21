@@ -271,10 +271,14 @@ const openEdit = (shift: Shift, person: Staff) => {
 
 const closeModal = () => { modalOpen.value = false }
 
+// These are shift-type labels, not status — DESIGN.md reserves semantic
+// colors (ok/warn/bad) for actual status and asks for no decorative extra
+// hues, so all three get the same neutral outline treatment and are told
+// apart by their text alone.
 const PRESET_META = [
-  { key: 'heldag', label: 'Heldag', classes: 'border-emerald-200 bg-emerald-100 text-emerald-800 hover:bg-emerald-200' },
-  { key: 'morgon', label: 'Morgonpass', classes: 'border-amber-200 bg-amber-100 text-amber-800 hover:bg-amber-200' },
-  { key: 'kvall', label: 'Kvällspass', classes: 'border-indigo-200 bg-indigo-100 text-indigo-800 hover:bg-indigo-200' }
+  { key: 'heldag', label: 'Heldag', classes: 'border-[var(--line)] bg-[var(--surface-2)] text-lyktan-mute hover:bg-[var(--line)]' },
+  { key: 'morgon', label: 'Morgonpass', classes: 'border-[var(--line)] bg-[var(--surface-2)] text-lyktan-mute hover:bg-[var(--line)]' },
+  { key: 'kvall', label: 'Kvällspass', classes: 'border-[var(--line)] bg-[var(--surface-2)] text-lyktan-mute hover:bg-[var(--line)]' }
 ] as const
 
 type PresetKey = typeof PRESET_META[number]['key']
@@ -374,22 +378,22 @@ const deleteShift = async () => {
       <h1 class="text-xl font-semibold text-lyktan-ink">Schema</h1>
 
       <div class="flex flex-wrap items-center gap-3">
-        <button type="button" class="shrink-0 rounded-full border border-black/15 px-3 py-1.5 text-sm hover:bg-black/[0.04]" @click="prevWeek">←</button>
-        <button type="button" class="shrink-0 rounded-full border border-black/15 px-4 py-1.5 text-sm hover:bg-black/[0.04]" @click="goToday">Idag</button>
+        <button type="button" class="shrink-0 rounded-lg border border-[var(--line)] px-3 py-1.5 text-sm hover:bg-[var(--surface-2)]" @click="prevWeek">←</button>
+        <button type="button" class="shrink-0 rounded-lg border border-[var(--line)] px-4 py-1.5 text-sm hover:bg-[var(--surface-2)]" @click="goToday">Idag</button>
         <span class="whitespace-nowrap text-sm font-medium text-lyktan-ink">{{ weekRangeLabel }}</span>
-        <button type="button" class="shrink-0 rounded-full border border-black/15 px-3 py-1.5 text-sm hover:bg-black/[0.04]" @click="nextWeek">→</button>
+        <button type="button" class="shrink-0 rounded-lg border border-[var(--line)] px-3 py-1.5 text-sm hover:bg-[var(--surface-2)]" @click="nextWeek">→</button>
         <button
           v-if="canEditSchedule"
           type="button"
           :disabled="copying"
-          class="shrink-0 whitespace-nowrap rounded-full border border-black/15 px-4 py-1.5 text-sm hover:bg-black/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
+          class="shrink-0 whitespace-nowrap rounded-lg border border-[var(--line)] px-4 py-1.5 text-sm hover:bg-[var(--surface-2)] disabled:cursor-not-allowed disabled:opacity-40"
           @click="copyPreviousWeek"
         >
           {{ copying ? 'Kopierar…' : 'Kopiera förra veckan' }}
         </button>
         <button
           type="button"
-          class="shrink-0 whitespace-nowrap rounded-full border border-black/15 px-4 py-1.5 text-sm hover:bg-black/[0.04]"
+          class="shrink-0 whitespace-nowrap rounded-lg border border-[var(--line)] px-4 py-1.5 text-sm hover:bg-[var(--surface-2)]"
           @click="openStats"
         >
           Månadsstatistik
@@ -400,15 +404,15 @@ const deleteShift = async () => {
     <p v-if="copyMessage" class="mb-4 text-sm text-lyktan-mute">{{ copyMessage }}</p>
 
     <p v-if="loading" class="text-sm text-lyktan-mute">Laddar…</p>
-    <p v-else-if="loadError" class="text-sm text-red-600">{{ loadError }}</p>
+    <p v-else-if="loadError" class="text-sm text-[var(--bad)]">{{ loadError }}</p>
     <p v-else-if="!staffList.length" class="text-sm text-lyktan-mute">
       Ingen aktiv personal ännu. Lägg till personal på <NuxtLink to="/personal" class="text-lyktan-accent hover:underline">Personal-sidan</NuxtLink> för att kunna schemalägga.
     </p>
 
-    <div v-else class="overflow-x-auto rounded-2xl border border-black/8 bg-lyktan-paper">
+    <div v-else class="overflow-x-auto rounded-2xl border border-[var(--line)] bg-lyktan-paper">
       <table class="w-full min-w-[900px] table-fixed text-left text-sm">
         <thead>
-          <tr class="border-b border-black/8 text-[0.72rem] font-medium text-lyktan-mute">
+          <tr class="border-b border-[var(--line)] text-[0.72rem] font-medium text-lyktan-mute">
             <th class="w-36 px-4 py-3">Personal</th>
             <th v-for="day in weekDays" :key="toIsoDate(day)" class="px-2 py-3 text-center" :class="{ 'text-lyktan-accent': isSameDate(day, today) }">
               {{ WEEKDAY_SHORT[day.getDay() === 0 ? 6 : day.getDay() - 1] }} {{ formatDayShort(day) }}
@@ -417,7 +421,7 @@ const deleteShift = async () => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="person in staffList" :key="person.id" class="border-b border-black/6 last:border-0">
+          <tr v-for="person in staffList" :key="person.id" class="border-b border-[var(--line)] last:border-0">
             <td class="px-4 py-3 align-top font-medium text-lyktan-ink">
               {{ person.name }}
               <div v-if="person.role" class="text-[0.72rem] font-normal text-lyktan-mute">{{ person.role }}</div>
@@ -427,7 +431,7 @@ const deleteShift = async () => {
                 <button
                   v-if="!shiftsFor(person.id, day).length"
                   type="button"
-                  class="flex min-h-12 w-full items-center justify-center rounded-lg border border-dashed border-black/15 text-lyktan-mute transition hover:border-black/30 hover:text-lyktan-ink"
+                  class="flex min-h-12 w-full items-center justify-center rounded-lg border border-dashed border-[var(--line)] text-lyktan-mute transition hover:border-[var(--muted)] hover:text-lyktan-ink"
                   @click="openAdd(person, day)"
                 >
                   +
@@ -458,7 +462,7 @@ const deleteShift = async () => {
           </tr>
         </tbody>
         <tfoot>
-          <tr class="border-t border-black/8 text-sm font-medium text-lyktan-ink">
+          <tr class="border-t border-[var(--line)] text-sm font-medium text-lyktan-ink">
             <td class="px-4 py-3" :colspan="8">Totalt</td>
             <td class="px-4 py-3 text-right">{{ formatHours(totalMinutesAllStaff) }}</td>
           </tr>
@@ -481,7 +485,7 @@ const deleteShift = async () => {
             v-for="preset in quickPresets"
             :key="preset.label"
             type="button"
-            class="rounded-full border px-3 py-1 text-[0.8rem] font-medium transition"
+            class="rounded-lg border px-3 py-1 text-[0.8rem] font-medium transition"
             :class="preset.classes"
             @click="applyPreset(preset)"
           >
@@ -493,27 +497,27 @@ const deleteShift = async () => {
           <div class="grid grid-cols-2 gap-4">
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Start</span>
-              <input v-model="form.startTime" type="time" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <input v-model="form.startTime" type="time" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             </label>
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Slut</span>
-              <input v-model="form.endTime" type="time" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <input v-model="form.endTime" type="time" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             </label>
           </div>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Anteckning</span>
-            <input v-model="form.notes" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm" placeholder="Valfritt">
+            <input v-model="form.notes" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm" placeholder="Valfritt">
           </label>
         </div>
 
-        <p v-if="formError" class="mt-3 text-sm text-red-600">{{ formError }}</p>
+        <p v-if="formError" class="mt-3 text-sm text-[var(--bad)]">{{ formError }}</p>
 
         <div class="mt-5 flex items-center gap-3">
           <button
             type="button"
             :disabled="saving"
-            class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
             @click="saveShift"
           >
             {{ saving ? 'Sparar…' : 'Spara' }}
@@ -523,7 +527,7 @@ const deleteShift = async () => {
             v-if="editingShift"
             type="button"
             :disabled="saving"
-            class="ml-auto text-sm text-red-600 hover:underline disabled:opacity-40"
+            class="ml-auto text-sm text-[var(--bad)] hover:underline disabled:opacity-40"
             @click="deleteShift"
           >
             Ta bort pass
@@ -534,7 +538,7 @@ const deleteShift = async () => {
 
     <div v-if="statsOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4" @click.self="statsOpen = false">
       <div class="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-lyktan-paper shadow-xl">
-        <div class="flex items-center justify-between border-b border-black/8 p-6 pb-4">
+        <div class="flex items-center justify-between border-b border-[var(--line)] p-6 pb-4">
           <h2 class="text-lg font-semibold text-lyktan-ink">Månadsstatistik</h2>
           <button type="button" aria-label="Stäng" class="text-lyktan-mute hover:text-lyktan-ink" @click="statsOpen = false">✕</button>
         </div>
@@ -542,25 +546,25 @@ const deleteShift = async () => {
         <div class="flex-1 overflow-y-auto p-6 pt-4">
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Månad</span>
-            <select v-model="statsMonth" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <select v-model="statsMonth" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
               <option v-for="opt in monthOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
             </select>
           </label>
 
           <p v-if="statsLoading" class="mt-4 text-sm text-lyktan-mute">Laddar…</p>
-          <p v-else-if="statsError" class="mt-4 text-sm text-red-600">{{ statsError }}</p>
+          <p v-else-if="statsError" class="mt-4 text-sm text-[var(--bad)]">{{ statsError }}</p>
 
           <template v-else>
             <div class="mt-4 grid grid-cols-3 gap-3">
-              <div class="rounded-xl border border-black/8 p-3 text-center">
+              <div class="rounded-xl border border-[var(--line)] p-3 text-center">
                 <p class="text-lg font-semibold text-lyktan-ink">{{ formatHours(statsTotalMinutes) }}</p>
                 <p class="text-[0.68rem] text-lyktan-mute">Totalt schemalagt</p>
               </div>
-              <div class="rounded-xl border border-black/8 p-3 text-center">
+              <div class="rounded-xl border border-[var(--line)] p-3 text-center">
                 <p class="text-lg font-semibold text-lyktan-ink">{{ statsTotalShifts }}</p>
                 <p class="text-[0.68rem] text-lyktan-mute">Antal pass</p>
               </div>
-              <div class="rounded-xl border border-black/8 p-3 text-center">
+              <div class="rounded-xl border border-[var(--line)] p-3 text-center">
                 <p class="text-lg font-semibold text-lyktan-ink">{{ busiestWeekdayLabel }}</p>
                 <p class="text-[0.68rem] text-lyktan-mute">Mest schemalagd dag</p>
               </div>
@@ -568,10 +572,10 @@ const deleteShift = async () => {
 
             <p v-if="!statsByStaff.length" class="mt-4 text-sm text-lyktan-mute">Inga pass schemalagda den månaden.</p>
 
-            <div v-else class="mt-4 overflow-hidden rounded-xl border border-black/8">
+            <div v-else class="mt-4 overflow-hidden rounded-xl border border-[var(--line)]">
               <table class="w-full text-left text-sm">
                 <thead>
-                  <tr class="border-b border-black/8 text-[0.68rem] font-medium text-lyktan-mute">
+                  <tr class="border-b border-[var(--line)] text-[0.68rem] font-medium text-lyktan-mute">
                     <th class="px-3 py-2">Personal</th>
                     <th class="px-3 py-2 text-right">Timmar</th>
                     <th class="px-3 py-2 text-right">Pass</th>
@@ -580,7 +584,7 @@ const deleteShift = async () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="entry in statsByStaff" :key="entry.staffId" class="border-b border-black/6 text-lyktan-ink last:border-0">
+                  <tr v-for="entry in statsByStaff" :key="entry.staffId" class="border-b border-[var(--line)] text-lyktan-ink last:border-0">
                     <td class="px-3 py-2 font-medium">{{ entry.name }}</td>
                     <td class="px-3 py-2 text-right">{{ formatHours(entry.minutes) }}</td>
                     <td class="px-3 py-2 text-right">{{ entry.shiftCount }}</td>

@@ -154,8 +154,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
             :key="s.value"
             type="button"
             :disabled="statusSaving"
-            class="rounded-full border px-3 py-1 text-[0.8rem] font-medium transition disabled:cursor-not-allowed disabled:opacity-40"
-            :class="order.status === s.value ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+            class="rounded-lg border px-3 py-1 text-[0.8rem] font-medium transition disabled:cursor-not-allowed disabled:opacity-40"
+            :class="order.status === s.value ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
             @click="setStatus(s.value as Order['status'])"
           >
             {{ s.label }}
@@ -165,7 +165,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <div v-if="canViewMembers">
             <button
               type="button"
-              class="rounded-full border border-black/15 px-4 py-1.5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+              class="rounded-lg border border-[var(--line)] px-4 py-1.5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
               @click="showMemberPicker = true"
             >
               Välj befintlig medlem
@@ -174,48 +174,48 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Kundnamn</span>
-            <input v-model="editDraft.customerName" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="editDraft.customerName" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <div class="grid grid-cols-2 gap-4">
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Telefon</span>
-              <input v-model="editDraft.customerPhone" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <input v-model="editDraft.customerPhone" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             </label>
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">E-post</span>
-              <input v-model="editDraft.customerEmail" type="email" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <input v-model="editDraft.customerEmail" type="email" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             </label>
           </div>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Produkt</span>
-            <input v-model="editDraft.productName" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="editDraft.productName" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label v-if="order.supplier === 'games_workshop'" class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Kortkod</span>
-            <input v-model="editDraft.productCode" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="editDraft.productCode" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Pris (kr)</span>
-            <input v-model.number="editDraft.priceKr" type="number" min="0" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model.number="editDraft.priceKr" type="number" min="0" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Anteckning</span>
-            <input v-model="editDraft.notes" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="editDraft.notes" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
         </div>
 
-        <p v-if="error" class="mt-3 text-sm text-red-600">{{ error }}</p>
+        <p v-if="error" class="mt-3 text-sm text-[var(--bad)]">{{ error }}</p>
 
         <div class="mt-5 flex flex-wrap items-center gap-3">
           <button
             type="button"
             :disabled="saving"
-            class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
             @click="save"
           >
             {{ saving ? 'Sparar…' : 'Spara ändringar' }}
@@ -224,7 +224,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <button
             type="button"
             :disabled="deleting"
-            class="ml-auto text-sm text-red-600 hover:underline disabled:opacity-40"
+            class="ml-auto text-sm text-[var(--bad)] hover:underline disabled:opacity-40"
             @click="deleteOrder"
           >
             Radera beställning

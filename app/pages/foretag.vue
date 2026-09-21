@@ -204,7 +204,7 @@ const deleteLink = async (link: CompanyLink) => {
         <button
           v-if="canEditCompany"
           type="button"
-          class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+          class="inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--line)] px-5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
           @click="showAddField = !showAddField"
         >
           {{ showAddField ? 'Avbryt' : '+ Ny uppgift' }}
@@ -213,26 +213,26 @@ const deleteLink = async (link: CompanyLink) => {
 
       <form
         v-if="showAddField"
-        class="mb-4 grid grid-cols-1 gap-4 rounded-2xl border border-black/8 bg-lyktan-paper p-6 sm:grid-cols-2"
+        class="mb-4 grid grid-cols-1 gap-4 rounded-2xl border border-[var(--line)] bg-lyktan-paper p-6 sm:grid-cols-2"
         @submit.prevent="submitAddField"
       >
         <label class="block">
           <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Namn</span>
-          <input v-model="newField.label" required placeholder="T.ex. Organisationsnummer" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          <input v-model="newField.label" required placeholder="T.ex. Organisationsnummer" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
         </label>
 
         <label class="block">
           <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Värde</span>
-          <input v-model="newField.value" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          <input v-model="newField.value" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
         </label>
 
-        <p v-if="addFieldError" class="sm:col-span-2 text-sm text-red-600">{{ addFieldError }}</p>
+        <p v-if="addFieldError" class="sm:col-span-2 text-sm text-[var(--bad)]">{{ addFieldError }}</p>
 
         <div class="sm:col-span-2">
           <button
             type="submit"
             :disabled="addFieldSaving"
-            class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
           >
             {{ addFieldSaving ? 'Sparar…' : 'Spara uppgift' }}
           </button>
@@ -240,30 +240,30 @@ const deleteLink = async (link: CompanyLink) => {
       </form>
 
       <p v-if="fieldsLoading" class="text-sm text-lyktan-mute">Laddar…</p>
-      <p v-else-if="fieldsError" class="text-sm text-red-600">{{ fieldsError }}</p>
+      <p v-else-if="fieldsError" class="text-sm text-[var(--bad)]">{{ fieldsError }}</p>
       <p v-else-if="!fields.length" class="text-sm text-lyktan-mute">Inga företagsuppgifter ännu.</p>
 
-      <div v-else class="overflow-hidden rounded-2xl border border-black/8 bg-lyktan-paper">
+      <div v-else class="overflow-hidden rounded-2xl border border-[var(--line)] bg-lyktan-paper">
         <div
           v-for="field in fields"
           :key="field.id"
-          class="border-b border-black/6 px-4 py-3 last:border-0"
+          class="border-b border-[var(--line)] px-4 py-3 last:border-0"
         >
           <div v-if="editingFieldId === field.id" class="grid gap-3 sm:grid-cols-2">
-            <input v-model="editFieldDraft.label" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
-            <input v-model="editFieldDraft.value" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
-            <p v-if="fieldError" class="text-sm text-red-600 sm:col-span-2">{{ fieldError }}</p>
+            <input v-model="editFieldDraft.label" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
+            <input v-model="editFieldDraft.value" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
+            <p v-if="fieldError" class="text-sm text-[var(--bad)] sm:col-span-2">{{ fieldError }}</p>
             <div class="flex items-center gap-3 sm:col-span-2">
               <button
                 type="button"
                 :disabled="fieldSaving"
-                class="inline-flex min-h-8 items-center justify-center rounded-full bg-lyktan-ink px-4 text-[0.8rem] font-medium text-white transition hover:bg-black disabled:opacity-40"
+                class="inline-flex min-h-8 items-center justify-center rounded-lg bg-lyktan-ink px-4 text-[0.8rem] font-medium text-[var(--paper)] transition hover:bg-black disabled:opacity-40"
                 @click="saveField(field.id)"
               >
                 {{ fieldSaving ? 'Sparar…' : 'Spara' }}
               </button>
               <button type="button" class="text-[0.8rem] text-lyktan-mute hover:text-lyktan-ink" @click="editingFieldId = null">Avbryt</button>
-              <button type="button" class="ml-auto text-[0.8rem] text-red-600 hover:underline" @click="deleteField(field)">Ta bort</button>
+              <button type="button" class="ml-auto text-[0.8rem] text-[var(--bad)] hover:underline" @click="deleteField(field)">Ta bort</button>
             </div>
           </div>
 
@@ -275,7 +275,7 @@ const deleteLink = async (link: CompanyLink) => {
             <div class="flex shrink-0 items-center gap-2">
               <button
                 type="button"
-                class="inline-flex min-h-8 items-center justify-center rounded-full border border-black/15 px-3 text-[0.78rem] font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+                class="inline-flex min-h-8 items-center justify-center rounded-lg border border-[var(--line)] px-3 text-[0.78rem] font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
                 @click="copy(field.value, field.id)"
               >
                 {{ copiedId === field.id ? 'Kopierat!' : 'Kopiera' }}
@@ -283,7 +283,7 @@ const deleteLink = async (link: CompanyLink) => {
               <button
                 v-if="canEditCompany"
                 type="button"
-                class="inline-flex min-h-8 items-center justify-center rounded-full border border-black/15 px-3 text-[0.78rem] font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+                class="inline-flex min-h-8 items-center justify-center rounded-lg border border-[var(--line)] px-3 text-[0.78rem] font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
                 @click="startEditField(field)"
               >
                 Ändra
@@ -300,7 +300,7 @@ const deleteLink = async (link: CompanyLink) => {
         <button
           v-if="canEditCompany"
           type="button"
-          class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+          class="inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--line)] px-5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
           @click="showAddLink = !showAddLink"
         >
           {{ showAddLink ? 'Avbryt' : '+ Ny länk' }}
@@ -309,26 +309,26 @@ const deleteLink = async (link: CompanyLink) => {
 
       <form
         v-if="showAddLink"
-        class="mb-4 grid grid-cols-1 gap-4 rounded-2xl border border-black/8 bg-lyktan-paper p-6 sm:grid-cols-2"
+        class="mb-4 grid grid-cols-1 gap-4 rounded-2xl border border-[var(--line)] bg-lyktan-paper p-6 sm:grid-cols-2"
         @submit.prevent="submitAddLink"
       >
         <label class="block">
           <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Titel</span>
-          <input v-model="newLink.title" required placeholder="T.ex. Bankgiro-inloggning" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          <input v-model="newLink.title" required placeholder="T.ex. Bankgiro-inloggning" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
         </label>
 
         <label class="block">
           <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Länk</span>
-          <input v-model="newLink.url" required placeholder="https://…" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          <input v-model="newLink.url" required placeholder="https://…" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
         </label>
 
-        <p v-if="addLinkError" class="sm:col-span-2 text-sm text-red-600">{{ addLinkError }}</p>
+        <p v-if="addLinkError" class="sm:col-span-2 text-sm text-[var(--bad)]">{{ addLinkError }}</p>
 
         <div class="sm:col-span-2">
           <button
             type="submit"
             :disabled="addLinkSaving"
-            class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
           >
             {{ addLinkSaving ? 'Sparar…' : 'Spara länk' }}
           </button>
@@ -336,30 +336,30 @@ const deleteLink = async (link: CompanyLink) => {
       </form>
 
       <p v-if="linksLoading" class="text-sm text-lyktan-mute">Laddar…</p>
-      <p v-else-if="linksError" class="text-sm text-red-600">{{ linksError }}</p>
+      <p v-else-if="linksError" class="text-sm text-[var(--bad)]">{{ linksError }}</p>
       <p v-else-if="!links.length" class="text-sm text-lyktan-mute">Inga länkar ännu.</p>
 
-      <div v-else class="overflow-hidden rounded-2xl border border-black/8 bg-lyktan-paper">
+      <div v-else class="overflow-hidden rounded-2xl border border-[var(--line)] bg-lyktan-paper">
         <div
           v-for="link in links"
           :key="link.id"
-          class="border-b border-black/6 px-4 py-3 last:border-0"
+          class="border-b border-[var(--line)] px-4 py-3 last:border-0"
         >
           <div v-if="editingLinkId === link.id" class="grid gap-3 sm:grid-cols-2">
-            <input v-model="editLinkDraft.title" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
-            <input v-model="editLinkDraft.url" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
-            <p v-if="linkError" class="text-sm text-red-600 sm:col-span-2">{{ linkError }}</p>
+            <input v-model="editLinkDraft.title" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
+            <input v-model="editLinkDraft.url" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
+            <p v-if="linkError" class="text-sm text-[var(--bad)] sm:col-span-2">{{ linkError }}</p>
             <div class="flex items-center gap-3 sm:col-span-2">
               <button
                 type="button"
                 :disabled="linkSaving"
-                class="inline-flex min-h-8 items-center justify-center rounded-full bg-lyktan-ink px-4 text-[0.8rem] font-medium text-white transition hover:bg-black disabled:opacity-40"
+                class="inline-flex min-h-8 items-center justify-center rounded-lg bg-lyktan-ink px-4 text-[0.8rem] font-medium text-[var(--paper)] transition hover:bg-black disabled:opacity-40"
                 @click="saveLink(link.id)"
               >
                 {{ linkSaving ? 'Sparar…' : 'Spara' }}
               </button>
               <button type="button" class="text-[0.8rem] text-lyktan-mute hover:text-lyktan-ink" @click="editingLinkId = null">Avbryt</button>
-              <button type="button" class="ml-auto text-[0.8rem] text-red-600 hover:underline" @click="deleteLink(link)">Ta bort</button>
+              <button type="button" class="ml-auto text-[0.8rem] text-[var(--bad)] hover:underline" @click="deleteLink(link)">Ta bort</button>
             </div>
           </div>
 
@@ -371,7 +371,7 @@ const deleteLink = async (link: CompanyLink) => {
             <div class="flex shrink-0 items-center gap-2">
               <button
                 type="button"
-                class="inline-flex min-h-8 items-center justify-center rounded-full border border-black/15 px-3 text-[0.78rem] font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+                class="inline-flex min-h-8 items-center justify-center rounded-lg border border-[var(--line)] px-3 text-[0.78rem] font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
                 @click="copy(link.url, link.id)"
               >
                 {{ copiedId === link.id ? 'Kopierat!' : 'Kopiera' }}
@@ -379,7 +379,7 @@ const deleteLink = async (link: CompanyLink) => {
               <button
                 v-if="canEditCompany"
                 type="button"
-                class="inline-flex min-h-8 items-center justify-center rounded-full border border-black/15 px-3 text-[0.78rem] font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+                class="inline-flex min-h-8 items-center justify-center rounded-lg border border-[var(--line)] px-3 text-[0.78rem] font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
                 @click="startEditLink(link)"
               >
                 Ändra

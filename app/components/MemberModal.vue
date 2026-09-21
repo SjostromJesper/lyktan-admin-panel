@@ -189,7 +189,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         <div class="flex items-center gap-3">
           <span
             class="rounded-full px-3 py-1 text-sm font-medium"
-            :class="(daysLeft(member.expiry_date) ?? -1) >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-black/8 text-lyktan-mute'"
+            :class="(daysLeft(member.expiry_date) ?? -1) >= 0 ? 'bg-[var(--ok-soft)] text-[var(--ok)]' : 'bg-[var(--surface-2)] text-lyktan-mute'"
           >
             {{ membershipStatusLabel(member.expiry_date) }}
           </span>
@@ -197,12 +197,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         </div>
       </div>
 
-      <div v-if="qrDataUrl" class="mb-6 flex flex-col items-center rounded-2xl border border-black/8 p-5">
-        <img :src="qrDataUrl" alt="QR-kod för medlemskap" width="160" height="160" class="rounded-lg">
+      <div v-if="qrDataUrl" class="mb-6 flex flex-col items-center rounded-2xl border border-[var(--line)] p-5">
+        <!-- The QR library always renders a white-background PNG (no dark
+             mode of its own), so it gets a fixed white chip here to avoid
+             looking like a broken bright box on a dark panel. -->
+        <div class="rounded-lg bg-white p-2">
+          <img :src="qrDataUrl" alt="QR-kod för medlemskap" width="160" height="160">
+        </div>
         <p class="mt-2 text-[0.72rem] text-lyktan-mute">Byts automatiskt vid varje förnyelse</p>
       </div>
 
-      <div v-if="canEditMembers" class="mb-6 rounded-2xl border border-black/8 p-5">
+      <div v-if="canEditMembers" class="mb-6 rounded-2xl border border-[var(--line)] p-5">
         <h2 class="mb-3 text-sm font-semibold text-lyktan-ink">Förnya medlemskap</h2>
 
         <p class="mb-4 text-sm text-lyktan-mute">
@@ -217,14 +222,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
             :key="months"
             type="button"
             :disabled="renewing"
-            class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--line)] px-5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)] disabled:cursor-not-allowed disabled:opacity-40"
             @click="renew(months)"
           >
             + {{ months }} {{ months === 1 ? 'månad' : 'månader' }}
           </button>
         </div>
 
-        <p v-if="renewError" class="mt-3 text-sm text-red-600">{{ renewError }}</p>
+        <p v-if="renewError" class="mt-3 text-sm text-[var(--bad)]">{{ renewError }}</p>
       </div>
 
       <p v-else class="mb-6 text-sm text-lyktan-mute">
@@ -232,7 +237,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         <span v-else>Inte aktiverat ännu.</span>
       </p>
 
-      <div v-if="canEditMembers" class="rounded-2xl border border-black/8 p-5">
+      <div v-if="canEditMembers" class="rounded-2xl border border-[var(--line)] p-5">
         <div class="flex items-center justify-between" :class="{ 'mb-4': showEditForm }">
           <h2 class="text-sm font-semibold text-lyktan-ink">Uppgifter</h2>
           <button
@@ -248,44 +253,44 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Förnamn</span>
-              <input v-model="editDraft.firstName" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <input v-model="editDraft.firstName" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             </label>
 
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Efternamn</span>
-              <input v-model="editDraft.lastName" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <input v-model="editDraft.lastName" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             </label>
 
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Telefonnummer</span>
-              <input v-model="editDraft.phone" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <input v-model="editDraft.phone" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             </label>
 
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">E-post</span>
-              <input v-model="editDraft.email" type="email" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <input v-model="editDraft.email" type="email" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             </label>
 
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Ålder</span>
-              <input v-model.number="editDraft.age" type="number" min="0" max="130" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <input v-model.number="editDraft.age" type="number" min="0" max="130" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             </label>
 
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Medlemskap</span>
-              <select v-model="editDraft.tier" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <select v-model="editDraft.tier" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
                 <option v-for="(label, key) in TIER_LABELS" :key="key" :value="key">{{ label }}</option>
               </select>
             </label>
           </div>
 
-          <p v-if="editError" class="mt-3 text-sm text-red-600">{{ editError }}</p>
+          <p v-if="editError" class="mt-3 text-sm text-[var(--bad)]">{{ editError }}</p>
 
           <div class="mt-4 flex items-center gap-3">
             <button
               type="button"
               :disabled="editSaving"
-              class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+              class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
               @click="saveEdit"
             >
               {{ editSaving ? 'Sparar…' : 'Spara ändringar' }}
@@ -294,7 +299,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
             <button
               type="button"
               :disabled="deleting"
-              class="ml-auto text-sm text-red-600 hover:underline disabled:opacity-40"
+              class="ml-auto text-sm text-[var(--bad)] hover:underline disabled:opacity-40"
               @click="deleteMember"
             >
               Radera konto
@@ -303,7 +308,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         </div>
       </div>
 
-      <div class="mt-6 rounded-2xl border border-black/8 p-5">
+      <div class="mt-6 rounded-2xl border border-[var(--line)] p-5">
         <h2 class="mb-3 text-sm font-semibold text-lyktan-ink">Historik</h2>
 
         <p v-if="historyLoading" class="text-sm text-lyktan-mute">Laddar…</p>
@@ -323,7 +328,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
                 v-if="i === 0 && canEditMembers"
                 type="button"
                 :disabled="undoing"
-                class="text-red-600 hover:underline disabled:opacity-40"
+                class="text-[var(--bad)] hover:underline disabled:opacity-40"
                 @click="undoEvent(event.id)"
               >
                 Ångra
@@ -332,7 +337,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           </li>
         </ul>
 
-        <p v-if="undoError" class="mt-3 text-sm text-red-600">{{ undoError }}</p>
+        <p v-if="undoError" class="mt-3 text-sm text-[var(--bad)]">{{ undoError }}</p>
       </div>
     </div>
   </div>

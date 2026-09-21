@@ -447,24 +447,24 @@ const quickOccupiedTitle = (table: AvailTable, time: string) => {
 
 const quickCellClass = (tableId: string, time: string) => {
   if (quickSelectedTableId.value === tableId && quickSelectedTime.value === time) {
-    return 'bg-lyktan-ink text-white'
+    return 'bg-lyktan-ink text-[var(--paper)]'
   }
 
   const occupied = quickOccupiedAt(tableId, time)
 
   if (occupied?.type === 'event') {
-    return 'cursor-not-allowed bg-amber-50 text-amber-700'
+    return 'cursor-not-allowed bg-[var(--warn-soft)] text-[var(--warn)]'
   }
 
   if (occupied?.type === 'room-locked') {
-    return 'cursor-not-allowed bg-black/[0.03] text-lyktan-mute'
+    return 'cursor-not-allowed bg-[var(--surface-2)] text-lyktan-mute'
   }
 
   if (occupied) {
-    return 'cursor-not-allowed bg-red-50 text-red-400'
+    return 'cursor-not-allowed bg-[var(--bad-soft)] text-[var(--bad)]'
   }
 
-  return 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+  return 'bg-[var(--ok-soft)] text-[var(--ok)] hover:bg-[var(--ok-soft)]'
 }
 
 const prevWeek = () => { weekStart.value = addDays(weekStart.value, -7) }
@@ -503,7 +503,7 @@ const onBookingDeleted = () => {
         <button
           v-if="canEditBookings"
           type="button"
-          class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+          class="inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--line)] px-5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
           @click="showAddTableForm = !showAddTableForm"
         >
           {{ showAddTableForm ? 'Avbryt' : '+ Nytt bord' }}
@@ -512,22 +512,22 @@ const onBookingDeleted = () => {
 
       <form
         v-if="showAddTableForm"
-        class="mb-4 grid grid-cols-1 gap-4 rounded-2xl border border-black/8 bg-lyktan-paper p-6 sm:grid-cols-2"
+        class="mb-4 grid grid-cols-1 gap-4 rounded-2xl border border-[var(--line)] bg-lyktan-paper p-6 sm:grid-cols-2"
         @submit.prevent="submitAddTable"
       >
         <label class="block">
           <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Namn</span>
-          <input v-model="newTable.name" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          <input v-model="newTable.name" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
         </label>
 
         <label class="block">
           <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Namn i webshoppen (valfritt)</span>
-          <input v-model="newTable.publicName" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          <input v-model="newTable.publicName" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
         </label>
 
         <label class="block">
           <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Typ</span>
-          <select v-model="newTable.kind" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          <select v-model="newTable.kind" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             <option value="bord">Bord</option>
             <option value="rum">Rum</option>
           </select>
@@ -535,21 +535,21 @@ const onBookingDeleted = () => {
 
         <label class="block">
           <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Kapacitet</span>
-          <input v-model.number="newTable.capacity" type="number" min="1" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          <input v-model.number="newTable.capacity" type="number" min="1" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
         </label>
 
         <label class="block">
           <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Pris (kr, valfritt)</span>
-          <input v-model.number="newTable.priceKr" type="number" min="0" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          <input v-model.number="newTable.priceKr" type="number" min="0" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
         </label>
 
-        <p v-if="addTableError" class="sm:col-span-2 text-sm text-red-600">{{ addTableError }}</p>
+        <p v-if="addTableError" class="sm:col-span-2 text-sm text-[var(--bad)]">{{ addTableError }}</p>
 
         <div class="sm:col-span-2">
           <button
             type="submit"
             :disabled="addTableSaving"
-            class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
           >
             {{ addTableSaving ? 'Sparar…' : 'Spara bord' }}
           </button>
@@ -557,12 +557,12 @@ const onBookingDeleted = () => {
       </form>
 
       <p v-if="tablesLoading" class="text-sm text-lyktan-mute">Laddar…</p>
-      <p v-else-if="tablesError" class="text-sm text-red-600">{{ tablesError }}</p>
+      <p v-else-if="tablesError" class="text-sm text-[var(--bad)]">{{ tablesError }}</p>
 
-      <div v-else class="overflow-x-auto rounded-2xl border border-black/8 bg-lyktan-paper">
+      <div v-else class="overflow-x-auto rounded-2xl border border-[var(--line)] bg-lyktan-paper">
         <table class="w-full min-w-[480px] text-left text-sm">
           <thead>
-            <tr class="border-b border-black/8 text-[0.72rem] font-medium text-lyktan-mute">
+            <tr class="border-b border-[var(--line)] text-[0.72rem] font-medium text-lyktan-mute">
               <th class="px-4 py-3">Namn</th>
               <th class="px-4 py-3">Typ</th>
               <th class="px-4 py-3">Kapacitet</th>
@@ -573,7 +573,7 @@ const onBookingDeleted = () => {
             <tr
               v-for="t in tables"
               :key="t.id"
-              class="cursor-pointer border-b border-black/6 last:border-0 hover:bg-black/[0.02]"
+              class="cursor-pointer border-b border-[var(--line)] last:border-0 hover:bg-[var(--surface-2)]"
               @click="selectedTable = t"
             >
               <td class="px-4 py-3 font-medium text-lyktan-ink">{{ t.name }}</td>
@@ -582,7 +582,7 @@ const onBookingDeleted = () => {
               <td class="px-4 py-3">
                 <span
                   class="rounded-full px-2.5 py-1 text-[0.72rem] font-medium"
-                  :class="t.active ? 'bg-emerald-100 text-emerald-700' : 'bg-black/8 text-lyktan-mute'"
+                  :class="t.active ? 'bg-[var(--ok-soft)] text-[var(--ok)]' : 'bg-[var(--surface-2)] text-lyktan-mute'"
                 >
                   {{ t.active ? 'Aktiv' : 'Inaktiv' }}
                 </span>
@@ -599,7 +599,7 @@ const onBookingDeleted = () => {
         <button
           v-if="canEditBookings"
           type="button"
-          class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+          class="inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--line)] px-5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
           @click="showAddRecurringForm = !showAddRecurringForm"
         >
           {{ showAddRecurringForm ? 'Avbryt' : '+ Nytt event' }}
@@ -608,17 +608,17 @@ const onBookingDeleted = () => {
 
       <form
         v-if="showAddRecurringForm"
-        class="mb-4 grid grid-cols-1 gap-4 rounded-2xl border border-black/8 bg-lyktan-paper p-6 sm:grid-cols-2"
+        class="mb-4 grid grid-cols-1 gap-4 rounded-2xl border border-[var(--line)] bg-lyktan-paper p-6 sm:grid-cols-2"
         @submit.prevent="submitAddRecurring"
       >
         <label class="block sm:col-span-2">
           <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Namn</span>
-          <input v-model="newRecurring.name" required placeholder="T.ex. Pokémon" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          <input v-model="newRecurring.name" required placeholder="T.ex. Pokémon" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
         </label>
 
         <label class="block">
           <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Veckodag</span>
-          <select v-model.number="newRecurring.weekday" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          <select v-model.number="newRecurring.weekday" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             <option v-for="(label, idx) in WEEKDAY_LABELS" :key="idx" :value="idx">{{ label }}</option>
           </select>
         </label>
@@ -626,11 +626,11 @@ const onBookingDeleted = () => {
         <div class="grid grid-cols-2 gap-4">
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Start</span>
-            <input v-model="newRecurring.startTime" type="time" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="newRecurring.startTime" type="time" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Slut</span>
-            <input v-model="newRecurring.endTime" type="time" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="newRecurring.endTime" type="time" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
         </div>
 
@@ -641,8 +641,8 @@ const onBookingDeleted = () => {
               v-for="t in tables"
               :key="t.id"
               type="button"
-              class="rounded-full border px-3 py-1 text-sm font-medium transition"
-              :class="newRecurring.tableIds.includes(t.id) ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+              class="rounded-lg border px-3 py-1 text-sm font-medium transition"
+              :class="newRecurring.tableIds.includes(t.id) ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
               @click="toggleNewRecurringTable(t.id)"
             >
               {{ t.name }}
@@ -650,13 +650,13 @@ const onBookingDeleted = () => {
           </div>
         </div>
 
-        <p v-if="addRecurringError" class="sm:col-span-2 text-sm text-red-600">{{ addRecurringError }}</p>
+        <p v-if="addRecurringError" class="sm:col-span-2 text-sm text-[var(--bad)]">{{ addRecurringError }}</p>
 
         <div class="sm:col-span-2">
           <button
             type="submit"
             :disabled="addRecurringSaving"
-            class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
           >
             {{ addRecurringSaving ? 'Sparar…' : 'Spara event' }}
           </button>
@@ -664,13 +664,13 @@ const onBookingDeleted = () => {
       </form>
 
       <p v-if="recurringLoading" class="text-sm text-lyktan-mute">Laddar…</p>
-      <p v-else-if="recurringError" class="text-sm text-red-600">{{ recurringError }}</p>
+      <p v-else-if="recurringError" class="text-sm text-[var(--bad)]">{{ recurringError }}</p>
       <p v-else-if="!recurringEvents.length" class="text-sm text-lyktan-mute">Inga stående event ännu.</p>
 
-      <div v-else class="overflow-x-auto rounded-2xl border border-black/8 bg-lyktan-paper">
+      <div v-else class="overflow-x-auto rounded-2xl border border-[var(--line)] bg-lyktan-paper">
         <table class="w-full min-w-[600px] text-left text-sm">
           <thead>
-            <tr class="border-b border-black/8 text-[0.72rem] font-medium text-lyktan-mute">
+            <tr class="border-b border-[var(--line)] text-[0.72rem] font-medium text-lyktan-mute">
               <th class="px-4 py-3">Namn</th>
               <th class="px-4 py-3">Veckodag & tid</th>
               <th class="px-4 py-3">Bord</th>
@@ -681,7 +681,7 @@ const onBookingDeleted = () => {
             <tr
               v-for="e in recurringEvents"
               :key="e.id"
-              class="cursor-pointer border-b border-black/6 last:border-0 hover:bg-black/[0.02]"
+              class="cursor-pointer border-b border-[var(--line)] last:border-0 hover:bg-[var(--surface-2)]"
               @click="selectedRecurring = e"
             >
               <td class="px-4 py-3 font-medium text-lyktan-ink">{{ e.name }}</td>
@@ -690,7 +690,7 @@ const onBookingDeleted = () => {
               <td class="px-4 py-3">
                 <span
                   class="rounded-full px-2.5 py-1 text-[0.72rem] font-medium"
-                  :class="e.active ? 'bg-emerald-100 text-emerald-700' : 'bg-black/8 text-lyktan-mute'"
+                  :class="e.active ? 'bg-[var(--ok-soft)] text-[var(--ok)]' : 'bg-[var(--surface-2)] text-lyktan-mute'"
                 >
                   {{ e.active ? 'Aktiv' : 'Inaktiv' }}
                 </span>
@@ -707,7 +707,7 @@ const onBookingDeleted = () => {
         <button
           v-if="canEditBookings"
           type="button"
-          class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+          class="inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--line)] px-5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
           @click="showAddOneOffForm = !showAddOneOffForm"
         >
           {{ showAddOneOffForm ? 'Avbryt' : '+ Nytt event' }}
@@ -716,27 +716,27 @@ const onBookingDeleted = () => {
 
       <form
         v-if="showAddOneOffForm"
-        class="mb-4 grid grid-cols-1 gap-4 rounded-2xl border border-black/8 bg-lyktan-paper p-6 sm:grid-cols-2"
+        class="mb-4 grid grid-cols-1 gap-4 rounded-2xl border border-[var(--line)] bg-lyktan-paper p-6 sm:grid-cols-2"
         @submit.prevent="submitAddOneOff"
       >
         <label class="block sm:col-span-2">
           <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Namn</span>
-          <input v-model="newOneOff.name" required placeholder="T.ex. Prerelease" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          <input v-model="newOneOff.name" required placeholder="T.ex. Prerelease" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
         </label>
 
         <label class="block">
           <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Datum</span>
-          <input v-model="newOneOff.eventDate" type="date" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+          <input v-model="newOneOff.eventDate" type="date" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
         </label>
 
         <div class="grid grid-cols-2 gap-4">
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Start</span>
-            <input v-model="newOneOff.startTime" type="time" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="newOneOff.startTime" type="time" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Slut</span>
-            <input v-model="newOneOff.endTime" type="time" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="newOneOff.endTime" type="time" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
         </div>
 
@@ -747,8 +747,8 @@ const onBookingDeleted = () => {
               v-for="t in tables"
               :key="t.id"
               type="button"
-              class="rounded-full border px-3 py-1 text-sm font-medium transition"
-              :class="newOneOff.tableIds.includes(t.id) ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+              class="rounded-lg border px-3 py-1 text-sm font-medium transition"
+              :class="newOneOff.tableIds.includes(t.id) ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
               @click="toggleNewOneOffTable(t.id)"
             >
               {{ t.name }}
@@ -756,13 +756,13 @@ const onBookingDeleted = () => {
           </div>
         </div>
 
-        <p v-if="addOneOffError" class="sm:col-span-2 text-sm text-red-600">{{ addOneOffError }}</p>
+        <p v-if="addOneOffError" class="sm:col-span-2 text-sm text-[var(--bad)]">{{ addOneOffError }}</p>
 
         <div class="sm:col-span-2">
           <button
             type="submit"
             :disabled="addOneOffSaving"
-            class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
           >
             {{ addOneOffSaving ? 'Sparar…' : 'Spara event' }}
           </button>
@@ -770,13 +770,13 @@ const onBookingDeleted = () => {
       </form>
 
       <p v-if="oneOffLoading" class="text-sm text-lyktan-mute">Laddar…</p>
-      <p v-else-if="oneOffError" class="text-sm text-red-600">{{ oneOffError }}</p>
+      <p v-else-if="oneOffError" class="text-sm text-[var(--bad)]">{{ oneOffError }}</p>
       <p v-else-if="!oneOffEvents.length" class="text-sm text-lyktan-mute">Inga engångsevent ännu.</p>
 
-      <div v-else class="overflow-x-auto rounded-2xl border border-black/8 bg-lyktan-paper">
+      <div v-else class="overflow-x-auto rounded-2xl border border-[var(--line)] bg-lyktan-paper">
         <table class="w-full min-w-[600px] text-left text-sm">
           <thead>
-            <tr class="border-b border-black/8 text-[0.72rem] font-medium text-lyktan-mute">
+            <tr class="border-b border-[var(--line)] text-[0.72rem] font-medium text-lyktan-mute">
               <th class="px-4 py-3">Namn</th>
               <th class="px-4 py-3">Datum & tid</th>
               <th class="px-4 py-3">Bord</th>
@@ -787,7 +787,7 @@ const onBookingDeleted = () => {
             <tr
               v-for="e in oneOffEvents"
               :key="e.id"
-              class="cursor-pointer border-b border-black/6 last:border-0 hover:bg-black/[0.02]"
+              class="cursor-pointer border-b border-[var(--line)] last:border-0 hover:bg-[var(--surface-2)]"
               @click="selectedOneOff = e"
             >
               <td class="px-4 py-3 font-medium text-lyktan-ink">{{ e.name }}</td>
@@ -796,7 +796,7 @@ const onBookingDeleted = () => {
               <td class="px-4 py-3">
                 <span
                   class="rounded-full px-2.5 py-1 text-[0.72rem] font-medium"
-                  :class="e.active ? 'bg-emerald-100 text-emerald-700' : 'bg-black/8 text-lyktan-mute'"
+                  :class="e.active ? 'bg-[var(--ok-soft)] text-[var(--ok)]' : 'bg-[var(--surface-2)] text-lyktan-mute'"
                 >
                   {{ e.active ? 'Aktiv' : 'Inaktiv' }}
                 </span>
@@ -813,16 +813,16 @@ const onBookingDeleted = () => {
         <div class="flex gap-2 text-sm">
           <button
             type="button"
-            class="rounded-full border px-4 py-1.5 font-medium transition"
-            :class="bookingDisplay === 'lista' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+            class="rounded-lg border px-4 py-1.5 font-medium transition"
+            :class="bookingDisplay === 'lista' ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
             @click="bookingDisplay = 'lista'"
           >
             Lista
           </button>
           <button
             type="button"
-            class="rounded-full border px-4 py-1.5 font-medium transition"
-            :class="bookingDisplay === 'kalender' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+            class="rounded-lg border px-4 py-1.5 font-medium transition"
+            :class="bookingDisplay === 'kalender' ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
             @click="bookingDisplay = 'kalender'"
           >
             Kalender
@@ -830,8 +830,8 @@ const onBookingDeleted = () => {
           <button
             v-if="canEditBookings"
             type="button"
-            class="rounded-full border px-4 py-1.5 font-medium transition"
-            :class="bookingDisplay === 'boka' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+            class="rounded-lg border px-4 py-1.5 font-medium transition"
+            :class="bookingDisplay === 'boka' ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
             @click="bookingDisplay = 'boka'"
           >
             Boka
@@ -843,16 +843,16 @@ const onBookingDeleted = () => {
         <div class="mb-4 flex gap-2 text-sm">
           <button
             type="button"
-            class="rounded-full border px-4 py-1.5 font-medium transition"
-            :class="view === 'active' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+            class="rounded-lg border px-4 py-1.5 font-medium transition"
+            :class="view === 'active' ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
             @click="view = 'active'"
           >
             Kommande
           </button>
           <button
             type="button"
-            class="rounded-full border px-4 py-1.5 font-medium transition"
-            :class="view === 'history' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+            class="rounded-lg border px-4 py-1.5 font-medium transition"
+            :class="view === 'history' ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
             @click="view = 'history'"
           >
             Historik
@@ -860,15 +860,15 @@ const onBookingDeleted = () => {
         </div>
 
         <p v-if="bookingsLoading" class="text-sm text-lyktan-mute">Laddar…</p>
-        <p v-else-if="bookingsError" class="text-sm text-red-600">{{ bookingsError }}</p>
+        <p v-else-if="bookingsError" class="text-sm text-[var(--bad)]">{{ bookingsError }}</p>
         <p v-else-if="!bookings.length" class="text-sm text-lyktan-mute">
           {{ view === 'active' ? 'Inga kommande bokningar.' : 'Ingen historik ännu.' }}
         </p>
 
-        <div v-else class="overflow-x-auto rounded-2xl border border-black/8 bg-lyktan-paper">
+        <div v-else class="overflow-x-auto rounded-2xl border border-[var(--line)] bg-lyktan-paper">
           <table class="w-full min-w-[720px] text-left text-sm">
             <thead>
-              <tr class="border-b border-black/8 text-[0.72rem] font-medium text-lyktan-mute">
+              <tr class="border-b border-[var(--line)] text-[0.72rem] font-medium text-lyktan-mute">
                 <th class="px-4 py-3">Datum</th>
                 <th class="px-4 py-3">Tid</th>
                 <th class="px-4 py-3">Bord</th>
@@ -881,8 +881,8 @@ const onBookingDeleted = () => {
               <tr
                 v-for="b in bookings"
                 :key="b.id"
-                class="cursor-pointer border-b border-black/6 last:border-0 hover:bg-black/[0.02]"
-                :class="b.member_id ? 'bg-sky-50/60' : ''"
+                class="cursor-pointer border-b border-[var(--line)] last:border-0 hover:bg-[var(--surface-2)]"
+                :class="b.member_id ? 'bg-[var(--focus-soft)]' : ''"
                 @click="selectedBooking = b"
               >
                 <td class="px-4 py-3 font-medium text-lyktan-ink">
@@ -893,16 +893,16 @@ const onBookingDeleted = () => {
                 <td class="px-4 py-3 text-lyktan-mute">{{ b.tables?.name || '—' }}</td>
                 <td class="px-4 py-3 text-lyktan-mute">
                   {{ b.customer_name }}
-                  <span v-if="b.member_id" class="ml-1 rounded-full bg-sky-100 px-2 py-0.5 text-[0.68rem] font-medium text-sky-700">Medlem</span>
+                  <span v-if="b.member_id" class="ml-1 rounded-full bg-[var(--focus-soft)] px-2 py-0.5 text-[0.68rem] font-medium text-[var(--focus)]">Medlem</span>
                 </td>
                 <td class="px-4 py-3">{{ b.party_size }}</td>
                 <td class="px-4 py-3">
                   <span
                     class="rounded-full px-2.5 py-1 text-[0.72rem] font-medium"
                     :class="{
-                      pending: 'bg-amber-100 text-amber-700',
-                      confirmed: 'bg-emerald-100 text-emerald-700',
-                      cancelled: 'bg-red-100 text-red-700'
+                      pending: 'bg-[var(--warn-soft)] text-[var(--warn)]',
+                      confirmed: 'bg-[var(--ok-soft)] text-[var(--ok)]',
+                      cancelled: 'bg-[var(--bad-soft)] text-[var(--bad)]'
                     }[b.status]"
                   >
                     {{ { pending: 'Väntar på betalning', confirmed: 'Bekräftad', cancelled: 'Avbokad' }[b.status] }}
@@ -916,20 +916,20 @@ const onBookingDeleted = () => {
 
       <template v-else-if="bookingDisplay === 'kalender'">
         <div class="mb-4 flex flex-wrap items-center gap-3">
-          <button type="button" class="shrink-0 rounded-full border border-black/15 px-3 py-1.5 text-sm hover:bg-black/[0.04]" @click="prevWeek">←</button>
-          <button type="button" class="shrink-0 rounded-full border border-black/15 px-4 py-1.5 text-sm hover:bg-black/[0.04]" @click="goToday">Idag</button>
+          <button type="button" class="shrink-0 rounded-lg border border-[var(--line)] px-3 py-1.5 text-sm hover:bg-[var(--surface-2)]" @click="prevWeek">←</button>
+          <button type="button" class="shrink-0 rounded-lg border border-[var(--line)] px-4 py-1.5 text-sm hover:bg-[var(--surface-2)]" @click="goToday">Idag</button>
           <span class="whitespace-nowrap text-sm font-medium text-lyktan-ink">{{ weekRangeLabel }}</span>
-          <button type="button" class="shrink-0 rounded-full border border-black/15 px-3 py-1.5 text-sm hover:bg-black/[0.04]" @click="nextWeek">→</button>
+          <button type="button" class="shrink-0 rounded-lg border border-[var(--line)] px-3 py-1.5 text-sm hover:bg-[var(--surface-2)]" @click="nextWeek">→</button>
         </div>
 
         <p v-if="calendarLoading" class="text-sm text-lyktan-mute">Laddar…</p>
-        <p v-else-if="calendarError" class="text-sm text-red-600">{{ calendarError }}</p>
+        <p v-else-if="calendarError" class="text-sm text-[var(--bad)]">{{ calendarError }}</p>
         <p v-else-if="!activeTables.length" class="text-sm text-lyktan-mute">Inga aktiva bord.</p>
 
-        <div v-else class="overflow-x-auto rounded-2xl border border-black/8 bg-lyktan-paper">
+        <div v-else class="overflow-x-auto rounded-2xl border border-[var(--line)] bg-lyktan-paper">
           <table class="w-full min-w-[900px] table-fixed text-left text-sm">
             <thead>
-              <tr class="border-b border-black/8 text-[0.72rem] font-medium text-lyktan-mute">
+              <tr class="border-b border-[var(--line)] text-[0.72rem] font-medium text-lyktan-mute">
                 <th class="w-32 px-4 py-3">Bord</th>
                 <th v-for="day in weekDays" :key="toIsoDate(day)" class="px-2 py-3 text-center" :class="{ 'text-lyktan-accent': isSameDate(day, today) }">
                   {{ WEEKDAY_SHORT[day.getDay() === 0 ? 6 : day.getDay() - 1] }} {{ formatDayShort(day) }}
@@ -937,7 +937,7 @@ const onBookingDeleted = () => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="t in activeTables" :key="t.id" class="border-b border-black/6 last:border-0">
+              <tr v-for="t in activeTables" :key="t.id" class="border-b border-[var(--line)] last:border-0">
                 <td class="px-4 py-3 align-top font-medium text-lyktan-ink">{{ t.name }}</td>
                 <td v-for="day in weekDays" :key="toIsoDate(day)" class="px-2 py-2 align-top">
                   <div class="space-y-1">
@@ -945,7 +945,7 @@ const onBookingDeleted = () => {
                       v-for="e in recurringForCell(t.id, day)"
                       :key="e.id"
                       type="button"
-                      class="block w-full rounded-lg bg-amber-100 px-2 py-1.5 text-left text-[0.8rem] font-medium text-amber-800 transition hover:bg-amber-200"
+                      class="block w-full rounded-lg bg-[var(--warn-soft)] px-2 py-1.5 text-left text-[0.8rem] font-medium text-[var(--warn)] transition hover:bg-[var(--warn-soft)]"
                       @click="selectedRecurring = e"
                     >
                       {{ e.start_time.slice(0, 5) }}–{{ e.end_time.slice(0, 5) }} {{ e.name }}
@@ -954,7 +954,7 @@ const onBookingDeleted = () => {
                       v-for="e in oneOffForCell(t.id, day)"
                       :key="e.id"
                       type="button"
-                      class="block w-full rounded-lg bg-violet-100 px-2 py-1.5 text-left text-[0.8rem] font-medium text-violet-800 transition hover:bg-violet-200"
+                      class="block w-full rounded-lg bg-lyktan-ink/5 px-2 py-1.5 text-left text-[0.8rem] font-medium text-lyktan-ink transition hover:bg-lyktan-ink/10"
                       @click="selectedOneOff = e"
                     >
                       {{ e.start_time.slice(0, 5) }}–{{ e.end_time.slice(0, 5) }} {{ e.name }}
@@ -965,9 +965,9 @@ const onBookingDeleted = () => {
                       type="button"
                       class="block w-full rounded-lg px-2 py-1.5 text-left text-[0.8rem] font-medium transition"
                       :class="b.status === 'pending'
-                        ? 'border border-dashed border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100'
+                        ? 'border border-dashed border-[var(--warn)] bg-[var(--warn-soft)] text-[var(--warn)] hover:bg-[var(--warn-soft)]'
                         : b.member_id
-                          ? 'bg-sky-100 text-sky-800 hover:bg-sky-200'
+                          ? 'bg-[var(--focus-soft)] text-[var(--focus)] hover:bg-[var(--focus-soft)]'
                           : 'bg-lyktan-ink/5 text-lyktan-ink hover:bg-lyktan-ink/10'"
                       @click="selectedBooking = b"
                     >
@@ -990,32 +990,32 @@ const onBookingDeleted = () => {
             v-model="quickDate"
             type="date"
             :min="toIsoDate(today)"
-            class="min-h-10 rounded-lg border border-black/12 bg-white px-3 text-sm text-lyktan-ink"
+            class="min-h-10 rounded-lg border border-[var(--line)] bg-white px-3 text-sm text-lyktan-ink"
           >
         </div>
 
-        <p v-if="quickBookedNotice" class="mb-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+        <p v-if="quickBookedNotice" class="mb-4 rounded-xl bg-[var(--ok-soft)] px-4 py-3 text-sm font-medium text-[var(--ok)]">
           {{ quickBookedNotice.tableName }} bokat {{ quickBookedNotice.startTime }}–{{ quickBookedNotice.endTime }}!
         </p>
 
         <p v-if="quickLoading" class="text-sm text-lyktan-mute">Laddar…</p>
-        <p v-else-if="quickError" class="text-sm text-red-600">{{ quickError }}</p>
+        <p v-else-if="quickError" class="text-sm text-[var(--bad)]">{{ quickError }}</p>
         <p v-else-if="!quickSlotTimes.length || !quickTables.length" class="text-sm text-lyktan-mute">Inga bokningsbara bord den dagen.</p>
 
         <template v-else>
-          <div class="overflow-x-auto rounded-xl border border-black/12">
+          <div class="overflow-x-auto rounded-xl border border-[var(--line)]">
             <table class="w-full min-w-[440px] border-collapse text-sm">
               <thead>
                 <tr>
-                  <th class="sticky left-0 z-10 border-b border-r border-black/12 bg-lyktan-paper px-3 py-2 text-left text-[0.72rem] font-medium text-lyktan-mute">Bord</th>
-                  <th v-for="time in quickSlotTimes" :key="time" class="border-b border-black/12 px-2 py-2 text-center text-[0.72rem] font-medium text-lyktan-mute">
+                  <th class="sticky left-0 z-10 border-b border-r border-[var(--line)] bg-lyktan-paper px-3 py-2 text-left text-[0.72rem] font-medium text-lyktan-mute">Bord</th>
+                  <th v-for="time in quickSlotTimes" :key="time" class="border-b border-[var(--line)] px-2 py-2 text-center text-[0.72rem] font-medium text-lyktan-mute">
                     {{ time }}
                   </th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="table in quickTables" :key="table.id" class="border-b border-black/6 last:border-0">
-                  <td class="sticky left-0 z-10 border-r border-black/12 bg-lyktan-paper px-3 py-2 text-sm font-medium text-lyktan-ink">{{ table.name }}</td>
+                <tr v-for="table in quickTables" :key="table.id" class="border-b border-[var(--line)] last:border-0">
+                  <td class="sticky left-0 z-10 border-r border-[var(--line)] bg-lyktan-paper px-3 py-2 text-sm font-medium text-lyktan-ink">{{ table.name }}</td>
                   <td v-for="cell in quickOverviewRows.get(table.id)" :key="cell.time" class="p-1 text-center" :colspan="cell.colspan">
                     <button
                       type="button"
@@ -1035,22 +1035,22 @@ const onBookingDeleted = () => {
           </div>
 
           <div class="mt-3 flex flex-wrap items-center gap-3 text-[0.72rem] text-lyktan-mute">
-            <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm border border-emerald-200 bg-emerald-50" /> Ledigt</span>
+            <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm border border-[var(--ok)] bg-[var(--ok-soft)]" /> Ledigt</span>
             <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-lyktan-ink" /> Valt</span>
-            <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm border border-red-200 bg-red-50" /> Bokat</span>
-            <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm border border-amber-200 bg-amber-50" /> Stående event</span>
-            <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm border border-black/12 bg-black/[0.03]" /> Låst</span>
+            <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm border border-[var(--bad)] bg-[var(--bad-soft)]" /> Bokat</span>
+            <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm border border-[var(--warn)] bg-[var(--warn-soft)]" /> Stående event</span>
+            <span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm border border-[var(--line)] bg-[var(--surface-2)]" /> Låst</span>
           </div>
 
-          <div v-if="quickSelectedTable && quickSelectedTime" class="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-black/8 bg-lyktan-paper p-4">
+          <div v-if="quickSelectedTable && quickSelectedTime" class="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-[var(--line)] bg-lyktan-paper p-4">
             <p class="text-sm font-medium text-lyktan-ink">
               {{ quickSelectedTable.name }} — kl. {{ quickSelectedTime }}
             </p>
-            <p v-if="quickSaveError" class="text-sm text-red-600">{{ quickSaveError }}</p>
+            <p v-if="quickSaveError" class="text-sm text-[var(--bad)]">{{ quickSaveError }}</p>
             <div class="ml-auto flex gap-2">
               <button
                 type="button"
-                class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-4 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+                class="inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--line)] px-4 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
                 @click="quickSelectedTableId = null; quickSelectedTime = null"
               >
                 Avbryt
@@ -1058,7 +1058,7 @@ const onBookingDeleted = () => {
               <button
                 type="button"
                 :disabled="quickSaving"
-                class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+                class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
                 @click="confirmQuickBooking"
               >
                 {{ quickSaving ? 'Bokar…' : 'Boka bord' }}

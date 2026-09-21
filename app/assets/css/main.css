@@ -1,14 +1,206 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-lyktan-ink: #1d1d1f;
-  --color-lyktan-paper: #ffffff;
-  --color-lyktan-surface: #f5f5f7;
-  --color-lyktan-mute: #6e6e73;
-  --color-lyktan-accent: #b5502e;
+  /* Aliased to the DESIGN.md tokens below rather than given their own
+   * literal values, so the whole app (which is built almost entirely on
+   * these five theme colors) inherits the new palette and dark mode
+   * without renaming classes in ~25 files. Note the cross-mapping: the
+   * old "paper" token is used app-wide as card/modal background, and old
+   * "surface" as the page background — the reverse of DESIGN.md's own
+   * paper/surface naming, so they're intentionally swapped here to match
+   * how they're actually used.
+   */
+  --color-lyktan-ink: var(--ink);
+  --color-lyktan-paper: var(--surface);
+  --color-lyktan-surface: var(--paper);
+  --color-lyktan-mute: var(--muted);
+  --color-lyktan-accent: var(--accent);
 }
 
 body {
   color: var(--color-lyktan-ink);
   background: var(--color-lyktan-surface);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+:root {
+  color-scheme: light dark;
+  --ink: #1D2230;
+  --paper: #EEF0EC;
+  --surface: #FFFFFF;
+  --surface-2: #F6F7F4;
+  --line: #D9DBD4;
+  --muted: #666B76;
+  --accent: #C97A12;
+  --accent-soft: #F7E6CC;
+  --focus: #2F6FDB;
+  --ok: #2E7D4F;
+  --warn: #B7791F;
+  --bad: #B4412F;
+  /* Soft tint backgrounds for status badges/pills (same idea as
+   * --accent-soft, extended to the other two semantic colors — a tint
+   * variant of an already-sanctioned hue, not a new color per DESIGN.md). */
+  --ok-soft: #E3F3E9;
+  --warn-soft: #FBEED9;
+  --bad-soft: #F8E3DE;
+  /* Reuses --focus as a 4th, "info" semantic color (e.g. "this booking
+   * belongs to a member") — an existing token given a second job rather
+   * than a new hue. */
+  --focus-soft: #E1EAFB;
+  --sans: 'Familjen Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --cond-mt: #1F7A4A;
+  --cond-nm: #2E8B57;
+  --cond-ex: #2B7F86;
+  --cond-gd: #9A7B12;
+  --cond-lp: #B7791F;
+  --cond-pl: #B4552F;
+  --cond-po: #A23A3A;
+  --cond-gr: #5B4BB0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --ink: #E9EAE6; --paper: #15181F; --surface: #1D212A; --surface-2: #232833;
+    --line: #333946; --muted: #9AA0AB; --accent: #E9A13F; --accent-soft: #3A2E1C; --focus: #7AA7F2;
+    --ok-soft: #1E2E25; --warn-soft: #332A1A; --bad-soft: #33221D; --focus-soft: #1E2836;
+  }
+}
+:root[data-theme='dark'] {
+  --ink: #E9EAE6; --paper: #15181F; --surface: #1D212A; --surface-2: #232833;
+  --line: #333946; --muted: #9AA0AB; --accent: #E9A13F; --accent-soft: #3A2E1C; --focus: #7AA7F2;
+  --ok-soft: #1E2E25; --warn-soft: #332A1A; --bad-soft: #33221D; --focus-soft: #1E2836;
+}
+
+/* `.lyktan-v2` is kept as a harmless no-op marker class on the Kortinköp
+ * pages (its old background/color/font/:focus-visible rules now live on
+ * `body`/`:root` above and apply everywhere) — not removed from those
+ * templates just to avoid a churn-only edit. New pages don't need it. */
+
+@layer components {
+  .btn {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    padding: 7px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: 500;
+    white-space: nowrap;
+    font-family: var(--sans);
+    color: var(--ink);
+  }
+  .btn:hover { border-color: var(--muted); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #1D1406; }
+  .btn.danger { color: var(--bad); }
+  .btn.small { padding: 4px 9px; font-size: 13px; }
+  .btn:disabled { cursor: not-allowed; opacity: .4; }
+
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 3px;
+  }
+  .tabs button {
+    border: 0;
+    background: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--muted);
+    font-family: var(--sans);
+  }
+  .tabs button[aria-selected='true'] { background: var(--ink); color: var(--paper); }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .panel + .panel { margin-top: 16px; }
+  .panel h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--muted);
+    margin: 0 0 14px;
+    font-weight: 600;
+  }
+
+  .fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 12px;
+  }
+  .f label {
+    display: block;
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .f input,
+  .f select,
+  .f textarea {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 7px 9px;
+    font: inherit;
+    color: inherit;
+  }
+  .f textarea { min-height: 60px; resize: vertical; }
+  .check { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+
+  .cond {
+    display: inline-block;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 99px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+
+  .notice {
+    margin: 16px 0 0;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--accent-soft);
+    font-size: 14px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .notice b { font-weight: 600; }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--paper);
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 50;
+  }
+
+  .mono { font-family: var(--mono); }
+  .num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
 }

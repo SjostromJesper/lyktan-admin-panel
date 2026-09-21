@@ -1,4 +1,4 @@
-type Section = 'members' | 'staff' | 'schedule' | 'orders' | 'bookings' | 'company' | 'products' | 'analytics'
+type Section = 'members' | 'staff' | 'schedule' | 'orders' | 'bookings' | 'company' | 'products' | 'analytics' | 'store_credit' | 'kortinkop'
 type AccessLevel = 'none' | 'view' | 'edit'
 
 const levelFor = (user: any, section: Section): AccessLevel => {
@@ -17,6 +17,8 @@ export const usePermissions = () => {
   const companyAccess = computed(() => levelFor(user.value, 'company'))
   const productsAccess = computed(() => levelFor(user.value, 'products'))
   const analyticsAccess = computed(() => levelFor(user.value, 'analytics'))
+  const storeCreditAccess = computed(() => levelFor(user.value, 'store_credit'))
+  const kortinkopAccess = computed(() => levelFor(user.value, 'kortinkop'))
 
   return {
     isSuperAdmin: computed(() => Boolean((user.value as any)?.isSuperAdmin)),
@@ -41,6 +43,11 @@ export const usePermissions = () => {
     canViewProducts: computed(() => productsAccess.value !== 'none'),
     canEditProducts: computed(() => productsAccess.value === 'edit'),
     canViewAnalytics: computed(() => analyticsAccess.value !== 'none'),
-    canEditAnalytics: computed(() => analyticsAccess.value === 'edit')
+    canEditAnalytics: computed(() => analyticsAccess.value === 'edit'),
+    canViewStoreCredit: computed(() => storeCreditAccess.value !== 'none'),
+    canEditStoreCredit: computed(() => storeCreditAccess.value === 'edit'),
+    kortinkopAccess,
+    canViewKortinkop: computed(() => kortinkopAccess.value !== 'none'),
+    canEditKortinkop: computed(() => kortinkopAccess.value === 'edit')
   }
 }

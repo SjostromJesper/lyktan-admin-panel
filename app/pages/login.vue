@@ -28,7 +28,7 @@ const submit = async () => {
 <template>
   <div class="flex min-h-[80vh] items-center justify-center">
     <form
-      class="w-full max-w-sm rounded-2xl border border-black/8 bg-lyktan-paper p-8 shadow-sm"
+      class="w-full max-w-sm rounded-2xl border border-[var(--line)] bg-lyktan-paper p-8 shadow-sm"
       @submit.prevent="submit"
     >
       <h1 class="mb-6 text-lg font-semibold text-lyktan-ink">Logga in</h1>
@@ -40,7 +40,7 @@ const submit = async () => {
           type="email"
           autocomplete="username"
           required
-          class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm outline-none focus:border-lyktan-accent"
+          class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm outline-none focus:border-lyktan-accent"
         >
       </label>
 
@@ -51,16 +51,16 @@ const submit = async () => {
           type="password"
           autocomplete="current-password"
           required
-          class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm outline-none focus:border-lyktan-accent"
+          class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm outline-none focus:border-lyktan-accent"
         >
       </label>
 
-      <p v-if="error" class="mb-4 text-sm text-red-600">{{ error }}</p>
+      <p v-if="error" class="mb-4 text-sm text-[var(--bad)]">{{ error }}</p>
 
       <button
         type="submit"
         :disabled="loading"
-        class="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-lyktan-ink px-6 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+        class="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-lyktan-ink px-6 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
       >
         {{ loading ? 'Loggar in…' : 'Logga in' }}
       </button>

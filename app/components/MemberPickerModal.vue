@@ -64,23 +64,23 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 <template>
   <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/30 p-4" @click.self="emit('close')">
     <div class="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-lyktan-paper shadow-xl">
-      <div class="flex items-center justify-between border-b border-black/8 p-6 pb-4">
+      <div class="flex items-center justify-between border-b border-[var(--line)] p-6 pb-4">
         <h1 class="text-lg font-semibold text-lyktan-ink">Välj befintlig medlem</h1>
         <button type="button" aria-label="Stäng" class="text-lyktan-mute hover:text-lyktan-ink" @click="emit('close')">✕</button>
       </div>
 
-      <div class="border-b border-black/8 p-4">
+      <div class="border-b border-[var(--line)] p-4">
         <input
           v-model="search"
           type="search"
           placeholder="Sök på namn, telefon eller e-post"
-          class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm"
+          class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm"
         >
       </div>
 
       <div class="flex-1 overflow-y-auto">
         <p v-if="loading" class="p-6 text-sm text-lyktan-mute">Laddar…</p>
-        <p v-else-if="loadError" class="p-6 text-sm text-red-600">{{ loadError }}</p>
+        <p v-else-if="loadError" class="p-6 text-sm text-[var(--bad)]">{{ loadError }}</p>
         <p v-else-if="!filteredMembers.length" class="p-6 text-sm text-lyktan-mute">Inga medlemmar hittades.</p>
 
         <ul v-else class="divide-y divide-black/6">
@@ -88,14 +88,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
             <button
               type="button"
               class="flex w-full items-center justify-between gap-3 px-6 py-3 text-left transition"
-              :class="selectedId === member.id ? 'bg-lyktan-ink/[0.06]' : 'hover:bg-black/[0.02]'"
+              :class="selectedId === member.id ? 'bg-lyktan-ink/[0.06]' : 'hover:bg-[var(--surface-2)]'"
               @click="selectedId = member.id"
             >
               <span class="min-w-0">
                 <span class="flex items-center gap-2 font-medium text-lyktan-ink">
                   <span
                     class="h-2 w-2 shrink-0 rounded-full"
-                    :class="{ green: 'bg-emerald-500', yellow: 'bg-amber-400', red: 'bg-red-500' }[membershipDotColor(member.expiry_date)]"
+                    :class="{ green: 'bg-[var(--ok-soft)]0', yellow: 'bg-[var(--warn)]', red: 'bg-[var(--bad-soft)]0' }[membershipDotColor(member.expiry_date)]"
                   />
                   {{ member.first_name }} {{ member.last_name }}
                 </span>
@@ -111,10 +111,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         </ul>
       </div>
 
-      <div class="flex items-center gap-3 border-t border-black/8 p-6 pt-4">
+      <div class="flex items-center gap-3 border-t border-[var(--line)] p-6 pt-4">
         <button
           type="button"
-          class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+          class="inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--line)] px-5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
           @click="emit('close')"
         >
           Avbryt
@@ -122,7 +122,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         <button
           type="button"
           :disabled="!selectedMember"
-          class="ml-auto inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+          class="ml-auto inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
           @click="confirmSelection"
         >
           Välj

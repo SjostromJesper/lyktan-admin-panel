@@ -60,11 +60,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
       </div>
 
       <p v-if="loading" class="text-sm text-lyktan-mute">Laddar…</p>
-      <p v-else-if="loadError" class="text-sm text-red-600">{{ loadError }}</p>
+      <p v-else-if="loadError" class="text-sm text-[var(--bad)]">{{ loadError }}</p>
       <p v-else-if="!scans.length" class="text-sm text-lyktan-mute">Inga skanningar ännu.</p>
 
       <ul v-else class="space-y-2">
-        <li v-for="scan in scans" :key="scan.id" class="flex items-center justify-between gap-3 rounded-lg border border-black/6 px-3 py-2 text-sm">
+        <li v-for="scan in scans" :key="scan.id" class="flex items-center justify-between gap-3 rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           <div>
             <span class="font-medium text-lyktan-ink">{{ scan.member_name || 'Okänd kod' }}</span>
             <span v-if="!scan.approved" class="ml-2 text-[0.72rem] text-lyktan-mute">{{ reasonLabel(scan.reason) }}</span>
@@ -72,7 +72,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           </div>
           <span
             class="whitespace-nowrap rounded-full px-2.5 py-1 text-[0.72rem] font-medium"
-            :class="scan.approved ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'"
+            :class="scan.approved ? 'bg-[var(--ok-soft)] text-[var(--ok)]' : 'bg-[var(--bad-soft)] text-[var(--bad)]'"
           >
             {{ scan.approved ? 'Godkänd' : 'Nekad' }}
           </span>

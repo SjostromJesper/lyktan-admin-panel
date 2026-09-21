@@ -250,7 +250,7 @@ const toggleSignups = async (product: Product) => {
       <button
         v-if="!showAddForm"
         type="button"
-        class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black"
+        class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black"
         @click="showAddForm = true"
       >
         + Ny produkt
@@ -258,7 +258,7 @@ const toggleSignups = async (product: Product) => {
 
       <form
         v-else
-        class="rounded-2xl border border-black/8 bg-lyktan-paper p-6"
+        class="rounded-2xl border border-[var(--line)] bg-lyktan-paper p-6"
         @submit.prevent="submitAdd"
       >
         <div class="mb-4 flex items-center justify-between">
@@ -269,7 +269,7 @@ const toggleSignups = async (product: Product) => {
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label class="block sm:col-span-2">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Titel</span>
-            <input v-model="newProduct.title" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="newProduct.title" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block sm:col-span-2">
@@ -277,7 +277,7 @@ const toggleSignups = async (product: Product) => {
             <textarea
               v-model="descriptionFacts"
               rows="2"
-              class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm"
+              class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm"
               placeholder="T.ex. vad som ingår, antal, format, tema — punktlista eller löptext"
             />
           </label>
@@ -294,33 +294,33 @@ const toggleSignups = async (product: Product) => {
                 {{ generatingDescription ? 'Genererar…' : 'Generera med AI' }}
               </button>
             </div>
-            <textarea v-model="newProduct.description" rows="4" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm" placeholder="Valfritt — en rad per stycke" />
-            <p v-if="generateDescriptionError" class="mt-1 text-[0.72rem] text-red-600">{{ generateDescriptionError }}</p>
+            <textarea v-model="newProduct.description" rows="4" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm" placeholder="Valfritt — en rad per stycke" />
+            <p v-if="generateDescriptionError" class="mt-1 text-[0.72rem] text-[var(--bad)]">{{ generateDescriptionError }}</p>
           </div>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Pris (kr)</span>
-            <input v-model.number="newProduct.priceKr" type="number" min="0" step="0.01" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model.number="newProduct.priceKr" type="number" min="0" step="0.01" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Jämförelsepris (kr)</span>
-            <input v-model.number="newProduct.compareAtPriceKr" type="number" min="0" step="0.01" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm" placeholder="Valfritt, för att visa rabatt">
+            <input v-model.number="newProduct.compareAtPriceKr" type="number" min="0" step="0.01" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm" placeholder="Valfritt, för att visa rabatt">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Lagerantal</span>
-            <input v-model.number="newProduct.inventoryQuantity" type="number" min="0" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model.number="newProduct.inventoryQuantity" type="number" min="0" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Taggar</span>
-            <input v-model="newProduct.tags" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm" placeholder="kommaseparerat, valfritt">
+            <input v-model="newProduct.tags" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm" placeholder="kommaseparerat, valfritt">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Releasedatum</span>
-            <input v-model="newProduct.releaseDate" type="date" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="newProduct.releaseDate" type="date" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             <span class="mt-1 block text-[0.72rem] text-lyktan-mute">Valfritt. Ett framtida datum visar "Kommer snart" + intresseanmälan istället för köpknapp. Nyligen släppta produkter (inom 30 dagar) märks som "Nyhet" automatiskt.</span>
           </label>
 
@@ -330,8 +330,8 @@ const toggleSignups = async (product: Product) => {
               <label
                 v-for="collection in collections"
                 :key="collection.id"
-                class="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition"
-                :class="newProduct.collectionIds.includes(collection.id) ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+                class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition"
+                :class="newProduct.collectionIds.includes(collection.id) ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
               >
                 <input v-model="newProduct.collectionIds" type="checkbox" :value="collection.id" class="sr-only">
                 {{ collection.title }}
@@ -350,16 +350,16 @@ const toggleSignups = async (product: Product) => {
             <div class="flex gap-2">
               <button
                 type="button"
-                class="rounded-full border px-4 py-1.5 text-sm font-medium transition"
-                :class="newProduct.status === 'ACTIVE' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+                class="rounded-lg border px-4 py-1.5 text-sm font-medium transition"
+                :class="newProduct.status === 'ACTIVE' ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
                 @click="newProduct.status = 'ACTIVE'"
               >
                 Aktiv
               </button>
               <button
                 type="button"
-                class="rounded-full border px-4 py-1.5 text-sm font-medium transition"
-                :class="newProduct.status === 'DRAFT' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+                class="rounded-lg border px-4 py-1.5 text-sm font-medium transition"
+                :class="newProduct.status === 'DRAFT' ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
                 @click="newProduct.status = 'DRAFT'"
               >
                 Utkast
@@ -370,24 +370,24 @@ const toggleSignups = async (product: Product) => {
           <div class="block">
             <span class="mb-2 block text-[0.72rem] font-medium text-lyktan-mute">Försäljning</span>
             <label class="flex items-center gap-2 text-sm text-lyktan-ink">
-              <input v-model="newProduct.inStoreOnly" type="checkbox" class="h-4 w-4 rounded border-black/15">
+              <input v-model="newProduct.inStoreOnly" type="checkbox" class="h-4 w-4 rounded border-[var(--line)]">
               Endast i butik (går inte att köpa i webshoppen)
             </label>
           </div>
         </div>
 
-        <p v-if="addError" class="mt-3 text-sm text-red-600">{{ addError }}</p>
+        <p v-if="addError" class="mt-3 text-sm text-[var(--bad)]">{{ addError }}</p>
 
         <button
           type="submit"
           :disabled="addSaving"
-          class="mt-4 inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+          class="mt-4 inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
         >
           {{ addSaving ? 'Skapar…' : 'Skapa produkt' }}
         </button>
       </form>
 
-      <div v-if="addWarnings.length" class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+      <div v-if="addWarnings.length" class="mt-4 rounded-xl border border-[var(--warn)] bg-[var(--warn-soft)] p-4 text-sm text-[var(--warn)]">
         <p class="font-medium">Produkten skapades, men något behöver kompletteras i Shopify:</p>
         <ul class="mt-1 list-disc pl-5">
           <li v-for="warning in addWarnings" :key="warning">{{ warning }}</li>
@@ -396,13 +396,13 @@ const toggleSignups = async (product: Product) => {
     </div>
 
     <p v-if="loading" class="text-sm text-lyktan-mute">Laddar…</p>
-    <p v-else-if="loadError" class="text-sm text-red-600">{{ loadError }}</p>
+    <p v-else-if="loadError" class="text-sm text-[var(--bad)]">{{ loadError }}</p>
     <p v-else-if="!products.length" class="text-sm text-lyktan-mute">Inga produkter ännu.</p>
 
-    <div v-else class="overflow-x-auto rounded-2xl border border-black/8 bg-lyktan-paper">
+    <div v-else class="overflow-x-auto rounded-2xl border border-[var(--line)] bg-lyktan-paper">
       <table class="w-full min-w-[720px] text-left text-sm">
         <thead>
-          <tr class="border-b border-black/8 text-[0.72rem] font-medium text-lyktan-mute">
+          <tr class="border-b border-[var(--line)] text-[0.72rem] font-medium text-lyktan-mute">
             <th class="px-4 py-3">Produkt</th>
             <th class="px-4 py-3">Kollektioner</th>
             <th class="px-4 py-3">Pris</th>
@@ -414,7 +414,7 @@ const toggleSignups = async (product: Product) => {
         </thead>
         <tbody>
           <template v-for="product in products" :key="product.id">
-            <tr class="border-b border-black/6 last:border-0">
+            <tr class="border-b border-[var(--line)] last:border-0">
               <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
                   <div class="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-lyktan-surface">
@@ -432,7 +432,7 @@ const toggleSignups = async (product: Product) => {
                   :value="product.status"
                   :disabled="statusUpdatingId === product.id"
                   class="rounded-full border-0 px-2.5 py-1 text-[0.72rem] font-medium disabled:cursor-not-allowed disabled:opacity-60"
-                  :class="product.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-700' : 'bg-black/[0.04] text-lyktan-mute'"
+                  :class="product.status === 'ACTIVE' ? 'bg-[var(--ok-soft)] text-[var(--ok)]' : 'bg-[var(--surface-2)] text-lyktan-mute'"
                   @change="updateProductStatus(product, ($event.target as HTMLSelectElement).value as Product['status'])"
                 >
                   <option value="ACTIVE">Aktiv</option>
@@ -442,11 +442,11 @@ const toggleSignups = async (product: Product) => {
                 <span
                   v-else
                   class="rounded-full px-2.5 py-1 text-[0.72rem] font-medium"
-                  :class="product.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-700' : 'bg-black/[0.04] text-lyktan-mute'"
+                  :class="product.status === 'ACTIVE' ? 'bg-[var(--ok-soft)] text-[var(--ok)]' : 'bg-[var(--surface-2)] text-lyktan-mute'"
                 >
                   {{ STATUS_LABELS[product.status] }}
                 </span>
-                <p v-if="statusErrorById[product.id]" class="mt-1 text-[0.68rem] text-red-600">{{ statusErrorById[product.id] }}</p>
+                <p v-if="statusErrorById[product.id]" class="mt-1 text-[0.68rem] text-[var(--bad)]">{{ statusErrorById[product.id] }}</p>
               </td>
               <td class="px-4 py-3 text-lyktan-mute">
                 <template v-if="product.releaseDate?.value">
@@ -466,7 +466,7 @@ const toggleSignups = async (product: Product) => {
                 <button type="button" class="text-sm text-lyktan-accent hover:underline" @click="openEdit(product)">Redigera</button>
               </td>
             </tr>
-            <tr v-if="openSignupsHandle === product.handle" class="border-b border-black/6 bg-black/[0.015] last:border-0">
+            <tr v-if="openSignupsHandle === product.handle" class="border-b border-[var(--line)] bg-[var(--surface-2)] last:border-0">
               <td :colspan="canEditProducts ? 7 : 6" class="px-4 py-3">
                 <p v-if="loadingSignups && !signupsByHandle[product.handle]" class="text-sm text-lyktan-mute">Laddar…</p>
                 <p v-else-if="!signupsByHandle[product.handle]?.length" class="text-sm text-lyktan-mute">Inga anmälningar ännu.</p>
@@ -483,7 +483,7 @@ const toggleSignups = async (product: Product) => {
     <div v-if="!loading && pageInfo.hasNextPage" class="mt-4 flex justify-center">
       <button
         type="button"
-        class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
+        class="inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--line)] px-5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)] disabled:cursor-not-allowed disabled:opacity-40"
         :disabled="loadingMore"
         @click="loadMore"
       >

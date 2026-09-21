@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany, canViewProducts, canViewAnalytics } = usePermissions()
+const { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany, canViewProducts, canViewAnalytics, canViewStoreCredit } = usePermissions()
 
 const tools = computed(() => {
   const items = []
@@ -12,6 +12,7 @@ const tools = computed(() => {
   if (canViewCompany.value) items.push({ to: '/foretag', title: 'Företag', description: 'Företagsuppgifter och viktiga länkar.' })
   if (canViewProducts.value) items.push({ to: '/produkter', title: 'Produkter', description: 'Skapa och hantera produkter i webshoppen.' })
   if (canViewAnalytics.value) items.push({ to: '/analytics', title: 'Statistik', description: 'Besökare, sidvisningar och trafikkällor för webshoppen.' })
+  if (canViewStoreCredit.value) items.push({ to: '/store-credit', title: 'Store credit', description: 'Ge kunder tillgodo och fritt tillträde till event.' })
   return items
 })
 </script>
@@ -25,7 +26,7 @@ const tools = computed(() => {
         v-for="tool in tools"
         :key="tool.to"
         :to="tool.to"
-        class="rounded-2xl border border-black/8 bg-lyktan-paper p-5 transition hover:border-black/20"
+        class="rounded-2xl border border-[var(--line)] bg-lyktan-paper p-5 transition hover:border-[var(--muted)]"
       >
         <h2 class="mb-1 font-medium text-lyktan-ink">{{ tool.title }}</h2>
         <p class="text-sm text-lyktan-mute">{{ tool.description }}</p>

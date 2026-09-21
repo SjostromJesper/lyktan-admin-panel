@@ -22,7 +22,11 @@ export default defineNuxtConfig({
   app: {
     head: {
       link: [
-        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' }
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+        // Fonts for the DESIGN.md design system, used site-wide.
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap' }
       ]
     }
   },
@@ -35,8 +39,10 @@ export default defineNuxtConfig({
       name: 'Butik Lyktan · Admin',
       short_name: 'BL Admin',
       description: 'Adminpanel för Butik Lyktan',
-      theme_color: '#1d1d1f',
-      background_color: '#f5f5f7',
+      // Matches the DESIGN.md palette's light-mode --ink/--paper — the PWA
+      // manifest has no dark-mode concept, so this is a fixed light pair.
+      theme_color: '#1D2230',
+      background_color: '#EEF0EC',
       display: 'standalone',
       start_url: '/',
       icons: [

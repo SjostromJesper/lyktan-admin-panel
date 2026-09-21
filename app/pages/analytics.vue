@@ -52,8 +52,8 @@ const devicePercent = (count: number) => Math.round((count / totalDeviceCount.va
           v-for="option in (['7d', '30d', '90d'] as const)"
           :key="option"
           type="button"
-          class="rounded-full border px-4 py-1.5 font-medium transition"
-          :class="range === option ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+          class="rounded-lg border px-4 py-1.5 font-medium transition"
+          :class="range === option ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
           @click="range = option"
         >
           {{ option === '7d' ? '7 dagar' : option === '30d' ? '30 dagar' : '90 dagar' }}
@@ -62,21 +62,21 @@ const devicePercent = (count: number) => Math.round((count / totalDeviceCount.va
     </div>
 
     <p v-if="loading" class="text-sm text-lyktan-mute">Laddar…</p>
-    <p v-else-if="loadError" class="text-sm text-red-600">{{ loadError }}</p>
+    <p v-else-if="loadError" class="text-sm text-[var(--bad)]">{{ loadError }}</p>
 
     <div v-else-if="summary" class="grid gap-6">
       <div class="grid grid-cols-2 gap-4 sm:grid-cols-2">
-        <div class="rounded-2xl border border-black/8 bg-lyktan-paper p-6">
+        <div class="rounded-2xl border border-[var(--line)] bg-lyktan-paper p-6">
           <p class="text-[0.72rem] font-medium text-lyktan-mute">Sidvisningar</p>
           <p class="mt-2 text-3xl font-semibold tracking-[-0.01em] text-lyktan-ink">{{ summary.totalPageviews }}</p>
         </div>
-        <div class="rounded-2xl border border-black/8 bg-lyktan-paper p-6">
+        <div class="rounded-2xl border border-[var(--line)] bg-lyktan-paper p-6">
           <p class="text-[0.72rem] font-medium text-lyktan-mute">Unika besökare</p>
           <p class="mt-2 text-3xl font-semibold tracking-[-0.01em] text-lyktan-ink">{{ summary.uniqueVisitors }}</p>
         </div>
       </div>
 
-      <div class="rounded-2xl border border-black/8 bg-lyktan-paper p-6">
+      <div class="rounded-2xl border border-[var(--line)] bg-lyktan-paper p-6">
         <p class="mb-4 text-[0.72rem] font-medium text-lyktan-mute">Sidvisningar per dag</p>
 
         <p v-if="!summary.dailySeries.length" class="text-sm text-lyktan-mute">Ingen data ännu.</p>
@@ -96,7 +96,7 @@ const devicePercent = (count: number) => Math.round((count / totalDeviceCount.va
       </div>
 
       <div class="grid gap-6 lg:grid-cols-2">
-        <div class="rounded-2xl border border-black/8 bg-lyktan-paper p-6">
+        <div class="rounded-2xl border border-[var(--line)] bg-lyktan-paper p-6">
           <p class="mb-3 text-[0.72rem] font-medium text-lyktan-mute">Populäraste sidorna</p>
           <p v-if="!summary.topPages.length" class="text-sm text-lyktan-mute">Ingen data ännu.</p>
           <ul v-else class="grid gap-2">
@@ -107,7 +107,7 @@ const devicePercent = (count: number) => Math.round((count / totalDeviceCount.va
           </ul>
         </div>
 
-        <div class="rounded-2xl border border-black/8 bg-lyktan-paper p-6">
+        <div class="rounded-2xl border border-[var(--line)] bg-lyktan-paper p-6">
           <p class="mb-3 text-[0.72rem] font-medium text-lyktan-mute">Trafikkällor</p>
           <p v-if="!summary.topReferrers.length" class="text-sm text-lyktan-mute">Ingen data ännu.</p>
           <ul v-else class="grid gap-2">
@@ -119,7 +119,7 @@ const devicePercent = (count: number) => Math.round((count / totalDeviceCount.va
         </div>
       </div>
 
-      <div class="rounded-2xl border border-black/8 bg-lyktan-paper p-6">
+      <div class="rounded-2xl border border-[var(--line)] bg-lyktan-paper p-6">
         <p class="mb-3 text-[0.72rem] font-medium text-lyktan-mute">Enheter</p>
         <div class="grid gap-3">
           <div v-for="key in ['desktop', 'mobile', 'tablet']" :key="key" class="grid gap-1">
@@ -127,7 +127,7 @@ const devicePercent = (count: number) => Math.round((count / totalDeviceCount.va
               <span class="text-lyktan-ink">{{ DEVICE_LABELS[key] }}</span>
               <span class="text-lyktan-mute">{{ devicePercent(summary.deviceCounts[key] || 0) }}%</span>
             </div>
-            <div class="h-2 w-full overflow-hidden rounded-full bg-black/[0.06]">
+            <div class="h-2 w-full overflow-hidden rounded-full bg-[var(--surface-2)]">
               <div class="h-full rounded-full bg-lyktan-ink" :style="{ width: `${devicePercent(summary.deviceCounts[key] || 0)}%` }" />
             </div>
           </div>

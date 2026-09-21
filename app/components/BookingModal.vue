@@ -110,17 +110,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
       <span
         class="mb-4 inline-block rounded-full px-3 py-1 text-sm font-medium"
         :class="{
-          pending: 'bg-amber-100 text-amber-700',
-          confirmed: 'bg-emerald-100 text-emerald-700',
-          cancelled: 'bg-red-100 text-red-700'
+          pending: 'bg-[var(--warn-soft)] text-[var(--warn)]',
+          confirmed: 'bg-[var(--ok-soft)] text-[var(--ok)]',
+          cancelled: 'bg-[var(--bad-soft)] text-[var(--bad)]'
         }[booking.status]"
       >
         {{ { pending: 'Väntar på betalning', confirmed: 'Bekräftad', cancelled: 'Avbokad' }[booking.status] }}
       </span>
-      <span v-if="booking.for_miniatures" class="mb-4 ml-2 inline-block rounded-full bg-black/8 px-3 py-1 text-sm font-medium text-lyktan-mute">
+      <span v-if="booking.for_miniatures" class="mb-4 ml-2 inline-block rounded-full bg-[var(--surface-2)] px-3 py-1 text-sm font-medium text-lyktan-mute">
         Miniatyrspel
       </span>
-      <span v-if="booking.member_id" class="mb-4 ml-2 inline-block rounded-full bg-sky-100 px-3 py-1 text-sm font-medium text-sky-700">
+      <span v-if="booking.member_id" class="mb-4 ml-2 inline-block rounded-full bg-[var(--focus-soft)] px-3 py-1 text-sm font-medium text-[var(--focus)]">
         Medlem<template v-if="booking.members"> ({{ TIER_LABELS[booking.members.tier] || booking.members.tier }})</template>
       </span>
 
@@ -128,38 +128,38 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         <div class="mt-2 space-y-4">
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Kundnamn</span>
-            <input v-model="editDraft.customerName" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="editDraft.customerName" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <div class="grid grid-cols-2 gap-4">
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Telefon</span>
-              <input v-model="editDraft.customerPhone" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <input v-model="editDraft.customerPhone" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             </label>
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">E-post</span>
-              <input v-model="editDraft.customerEmail" type="email" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <input v-model="editDraft.customerEmail" type="email" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             </label>
           </div>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Antal personer</span>
-            <input v-model.number="editDraft.partySize" type="number" min="1" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model.number="editDraft.partySize" type="number" min="1" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <div v-if="booking.notes">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Anteckning från kund</span>
-            <p class="rounded-lg bg-black/[0.03] px-3 py-2 text-sm text-lyktan-ink">{{ booking.notes }}</p>
+            <p class="rounded-lg bg-[var(--surface-2)] px-3 py-2 text-sm text-lyktan-ink">{{ booking.notes }}</p>
           </div>
         </div>
 
-        <p v-if="error" class="mt-3 text-sm text-red-600">{{ error }}</p>
+        <p v-if="error" class="mt-3 text-sm text-[var(--bad)]">{{ error }}</p>
 
         <div class="mt-5 flex flex-wrap items-center gap-3">
           <button
             type="button"
             :disabled="saving"
-            class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
             @click="save"
           >
             {{ saving ? 'Sparar…' : 'Spara ändringar' }}
@@ -168,7 +168,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <button
             type="button"
             :disabled="togglingStatus"
-            class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--line)] px-5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)] disabled:cursor-not-allowed disabled:opacity-40"
             @click="toggleStatus"
           >
             {{ booking.status === 'cancelled' ? 'Återställ bokning' : 'Avboka' }}

@@ -90,17 +90,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         <div class="space-y-4">
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Namn</span>
-            <input v-model="editDraft.name" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="editDraft.name" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Namn i webshoppen (valfritt, annars visas "{{ table.name }}")</span>
-            <input v-model="editDraft.publicName" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="editDraft.publicName" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Typ</span>
-            <select v-model="editDraft.kind" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <select v-model="editDraft.kind" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
               <option value="bord">Bord</option>
               <option value="rum">Rum</option>
             </select>
@@ -108,12 +108,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Kapacitet (antal personer)</span>
-            <input v-model.number="editDraft.capacity" type="number" min="1" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model.number="editDraft.capacity" type="number" min="1" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Pris (kr, valfritt)</span>
-            <input v-model.number="editDraft.priceKr" type="number" min="0" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model.number="editDraft.priceKr" type="number" min="0" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="flex items-center gap-2 text-sm text-lyktan-mute">
@@ -122,13 +122,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           </label>
         </div>
 
-        <p v-if="error" class="mt-3 text-sm text-red-600">{{ error }}</p>
+        <p v-if="error" class="mt-3 text-sm text-[var(--bad)]">{{ error }}</p>
 
         <div class="mt-5 flex items-center gap-3">
           <button
             type="button"
             :disabled="saving"
-            class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
             @click="save"
           >
             {{ saving ? 'Sparar…' : 'Spara ändringar' }}
@@ -137,7 +137,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <button
             type="button"
             :disabled="deleting"
-            class="ml-auto text-sm text-red-600 hover:underline disabled:opacity-40"
+            class="ml-auto text-sm text-[var(--bad)] hover:underline disabled:opacity-40"
             @click="deleteTable"
           >
             Ta bort

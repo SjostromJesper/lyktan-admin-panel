@@ -265,7 +265,7 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
 
     <form
       v-if="canEditOrders"
-      class="mb-8 rounded-2xl border border-black/8 bg-lyktan-paper p-6"
+      class="mb-8 rounded-2xl border border-[var(--line)] bg-lyktan-paper p-6"
       @submit.prevent="submitAdd"
     >
       <h2 class="mb-4 text-sm font-semibold text-lyktan-ink">Ny beställning</h2>
@@ -276,8 +276,8 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
           v-for="(label, key) in SUPPLIER_LABELS"
           :key="key"
           type="button"
-          class="rounded-full border px-4 py-1.5 text-sm font-medium transition"
-          :class="newOrder.supplier === key ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+          class="rounded-lg border px-4 py-1.5 text-sm font-medium transition"
+          :class="newOrder.supplier === key ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
           @click="selectSupplier(key as 'games_workshop' | 'asmodee')"
         >
           {{ label }}
@@ -288,7 +288,7 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
         <div class="mb-6">
           <button
             type="button"
-            class="rounded-full border border-black/15 px-4 py-1.5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+            class="rounded-lg border border-[var(--line)] px-4 py-1.5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
             @click="showCatalogPicker = true"
           >
             Sök i katalogen
@@ -300,7 +300,7 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
           <textarea
             v-model="gwPaste"
             rows="2"
-            class="w-full rounded-lg border border-black/15 px-3 py-2 font-mono text-xs"
+            class="w-full rounded-lg border border-[var(--line)] px-3 py-2 font-mono text-xs"
             placeholder="9/5/26  Warhammer 40,000  40K - Xenos - Orks  50-74  99120103135  ..."
           />
         </label>
@@ -308,23 +308,23 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Kortkod</span>
-            <input v-model="newOrder.productCode" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="newOrder.productCode" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Pris (kr)</span>
-            <input v-model.number="newOrder.priceKr" type="number" min="0" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model.number="newOrder.priceKr" type="number" min="0" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block sm:col-span-2">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Produktnamn</span>
-            <input v-model="newOrder.productName" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="newOrder.productName" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <div v-if="canViewMembers" class="sm:col-span-2">
             <button
               type="button"
-              class="rounded-full border border-black/15 px-4 py-1.5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+              class="rounded-lg border border-[var(--line)] px-4 py-1.5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
               @click="showMemberPicker = true"
             >
               Välj befintlig medlem
@@ -333,31 +333,31 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Kundnamn</span>
-            <input v-model="newOrder.customerName" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="newOrder.customerName" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Telefon</span>
-            <input v-model="newOrder.customerPhone" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="newOrder.customerPhone" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">E-post</span>
-            <input v-model="newOrder.customerEmail" type="email" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="newOrder.customerEmail" type="email" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block sm:col-span-2">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Anteckning</span>
-            <input v-model="newOrder.notes" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm" placeholder="Valfritt">
+            <input v-model="newOrder.notes" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm" placeholder="Valfritt">
           </label>
         </div>
 
-        <p v-if="addError" class="mt-3 text-sm text-red-600">{{ addError }}</p>
+        <p v-if="addError" class="mt-3 text-sm text-[var(--bad)]">{{ addError }}</p>
 
         <button
           type="submit"
           :disabled="addSaving"
-          class="mt-4 inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+          class="mt-4 inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
         >
           {{ addSaving ? 'Sparar…' : 'Spara beställning' }}
         </button>
@@ -370,8 +370,8 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
             v-for="line in PRODUCT_LINES.asmodee"
             :key="line.value"
             type="button"
-            class="rounded-full border px-4 py-1.5 text-sm font-medium transition"
-            :class="newOrder.productLine === line.value ? 'border-lyktan-accent bg-lyktan-accent text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+            class="rounded-lg border px-4 py-1.5 text-sm font-medium transition"
+            :class="newOrder.productLine === line.value ? 'border-lyktan-accent bg-lyktan-accent text-[#1D1406]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
             @click="newOrder.productLine = line.value"
           >
             {{ line.label }}
@@ -381,18 +381,18 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label class="block sm:col-span-2">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Produkt</span>
-            <input v-model="newOrder.productName" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="newOrder.productName" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Pris (kr)</span>
-            <input v-model.number="newOrder.priceKr" type="number" min="0" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model.number="newOrder.priceKr" type="number" min="0" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <div v-if="canViewMembers" class="sm:col-span-2">
             <button
               type="button"
-              class="rounded-full border border-black/15 px-4 py-1.5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+              class="rounded-lg border border-[var(--line)] px-4 py-1.5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
               @click="showMemberPicker = true"
             >
               Välj befintlig medlem
@@ -401,31 +401,31 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Kundnamn</span>
-            <input v-model="newOrder.customerName" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="newOrder.customerName" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Telefon</span>
-            <input v-model="newOrder.customerPhone" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="newOrder.customerPhone" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">E-post</span>
-            <input v-model="newOrder.customerEmail" type="email" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="newOrder.customerEmail" type="email" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Anteckning</span>
-            <input v-model="newOrder.notes" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm" placeholder="Valfritt">
+            <input v-model="newOrder.notes" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm" placeholder="Valfritt">
           </label>
         </div>
 
-        <p v-if="addError" class="mt-3 text-sm text-red-600">{{ addError }}</p>
+        <p v-if="addError" class="mt-3 text-sm text-[var(--bad)]">{{ addError }}</p>
 
         <button
           type="submit"
           :disabled="addSaving"
-          class="mt-4 inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+          class="mt-4 inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
         >
           {{ addSaving ? 'Sparar…' : 'Spara beställning' }}
         </button>
@@ -436,16 +436,16 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
       <div class="flex gap-2 text-sm">
         <button
           type="button"
-          class="rounded-full border px-4 py-1.5 font-medium transition"
-          :class="view === 'active' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+          class="rounded-lg border px-4 py-1.5 font-medium transition"
+          :class="view === 'active' ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
           @click="view = 'active'"
         >
           Aktiva
         </button>
         <button
           type="button"
-          class="rounded-full border px-4 py-1.5 font-medium transition"
-          :class="view === 'klar' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+          class="rounded-lg border px-4 py-1.5 font-medium transition"
+          :class="view === 'klar' ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
           @click="view = 'klar'"
         >
           Historik
@@ -456,7 +456,7 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
         <span class="text-lyktan-mute">{{ selectedOrderIds.size }} valda · {{ formatKr(selectedTotalKr) }}</span>
         <button
           type="button"
-          class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-4 text-sm font-medium text-white transition hover:bg-black"
+          class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-4 text-sm font-medium text-[var(--paper)] transition hover:bg-black"
           @click="copySelectedList"
         >
           {{ copyFeedback ? 'Kopierat!' : 'Kopiera lista' }}
@@ -470,8 +470,8 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
         v-for="status in availableStatuses"
         :key="status.value"
         type="button"
-        class="rounded-full border px-3 py-1 text-[0.8rem] font-medium transition"
-        :class="isStatusFullySelected(status.value) ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+        class="rounded-lg border px-3 py-1 text-[0.8rem] font-medium transition"
+        :class="isStatusFullySelected(status.value) ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
         @click="selectByStatus(status.value)"
       >
         {{ status.label }}
@@ -479,15 +479,15 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
     </div>
 
     <p v-if="loading" class="text-sm text-lyktan-mute">Laddar…</p>
-    <p v-else-if="loadError" class="text-sm text-red-600">{{ loadError }}</p>
+    <p v-else-if="loadError" class="text-sm text-[var(--bad)]">{{ loadError }}</p>
     <p v-else-if="!orders.length" class="text-sm text-lyktan-mute">
       {{ view === 'active' ? 'Inga aktiva beställningar.' : 'Ingen historik ännu.' }}
     </p>
 
-    <div v-else class="overflow-x-auto rounded-2xl border border-black/8 bg-lyktan-paper">
+    <div v-else class="overflow-x-auto rounded-2xl border border-[var(--line)] bg-lyktan-paper">
       <table class="w-full min-w-[720px] text-left text-sm">
         <thead>
-          <tr class="border-b border-black/8 text-[0.72rem] font-medium text-lyktan-mute">
+          <tr class="border-b border-[var(--line)] text-[0.72rem] font-medium text-lyktan-mute">
             <th class="w-10 px-4 py-3">
               <input type="checkbox" :checked="allSelected" @click.stop @change="toggleSelectAll">
             </th>
@@ -502,7 +502,7 @@ const quickSetStatus = async (order: Order, status: Order['status']) => {
           <tr
             v-for="order in orders"
             :key="order.id"
-            class="cursor-pointer border-b border-black/6 last:border-0 hover:bg-black/[0.02]"
+            class="cursor-pointer border-b border-[var(--line)] last:border-0 hover:bg-[var(--surface-2)]"
             @click="selectedOrder = order"
           >
             <td class="px-4 py-3" @click.stop>

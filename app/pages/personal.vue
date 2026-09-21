@@ -15,6 +15,7 @@ type Staff = {
   company_access?: AccessLevel
   products_access?: AccessLevel
   analytics_access?: AccessLevel
+  kortinkop_access?: AccessLevel
   created_at: string
 }
 
@@ -32,7 +33,8 @@ const accessSummary = (person: Staff) => {
     person.bookings_access && person.bookings_access !== 'none' && `Bordsbokning (${ACCESS_LABELS[person.bookings_access]})`,
     person.company_access && person.company_access !== 'none' && `Företag (${ACCESS_LABELS[person.company_access]})`,
     person.products_access && person.products_access !== 'none' && `Produkter (${ACCESS_LABELS[person.products_access]})`,
-    person.analytics_access && person.analytics_access !== 'none' && `Statistik (${ACCESS_LABELS[person.analytics_access]})`
+    person.analytics_access && person.analytics_access !== 'none' && `Statistik (${ACCESS_LABELS[person.analytics_access]})`,
+    person.kortinkop_access && person.kortinkop_access !== 'none' && `Kortinköp (${ACCESS_LABELS[person.kortinkop_access]})`
   ].filter(Boolean)
   return parts.length ? parts.join(', ') : 'Inloggning, ingen behörighet'
 }
@@ -105,7 +107,7 @@ const onStaffDeleted = (id: string) => {
       <button
         v-if="canEditStaff"
         type="button"
-        class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black"
+        class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black"
         @click="showAddForm = !showAddForm"
       >
         {{ showAddForm ? 'Avbryt' : '+ Ny person' }}
@@ -114,26 +116,26 @@ const onStaffDeleted = (id: string) => {
 
     <form
       v-if="showAddForm && canEditStaff"
-      class="mb-8 grid grid-cols-1 gap-4 rounded-2xl border border-black/8 bg-lyktan-paper p-6 sm:grid-cols-2"
+      class="mb-8 grid grid-cols-1 gap-4 rounded-2xl border border-[var(--line)] bg-lyktan-paper p-6 sm:grid-cols-2"
       @submit.prevent="submitAdd"
     >
       <label class="block">
         <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Namn</span>
-        <input v-model="newStaff.name" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+        <input v-model="newStaff.name" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
       </label>
 
       <label class="block">
         <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Roll</span>
-        <input v-model="newStaff.role" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm" placeholder="T.ex. Butikssäljare">
+        <input v-model="newStaff.role" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm" placeholder="T.ex. Butikssäljare">
       </label>
 
-      <p v-if="addError" class="sm:col-span-2 text-sm text-red-600">{{ addError }}</p>
+      <p v-if="addError" class="sm:col-span-2 text-sm text-[var(--bad)]">{{ addError }}</p>
 
       <div class="sm:col-span-2">
         <button
           type="submit"
           :disabled="addSaving"
-          class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+          class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
         >
           {{ addSaving ? 'Sparar…' : 'Spara person' }}
         </button>
@@ -141,13 +143,13 @@ const onStaffDeleted = (id: string) => {
     </form>
 
     <p v-if="loading" class="text-sm text-lyktan-mute">Laddar…</p>
-    <p v-else-if="loadError" class="text-sm text-red-600">{{ loadError }}</p>
+    <p v-else-if="loadError" class="text-sm text-[var(--bad)]">{{ loadError }}</p>
     <p v-else-if="!staffList.length" class="text-sm text-lyktan-mute">Ingen personal ännu.</p>
 
-    <div v-else class="overflow-x-auto rounded-2xl border border-black/8 bg-lyktan-paper">
+    <div v-else class="overflow-x-auto rounded-2xl border border-[var(--line)] bg-lyktan-paper">
       <table class="w-full min-w-[480px] text-left text-sm">
         <thead>
-          <tr class="border-b border-black/8 text-[0.72rem] font-medium text-lyktan-mute">
+          <tr class="border-b border-[var(--line)] text-[0.72rem] font-medium text-lyktan-mute">
             <th class="px-4 py-3">Namn</th>
             <th class="px-4 py-3">Roll</th>
             <th class="px-4 py-3">Status</th>
@@ -158,7 +160,7 @@ const onStaffDeleted = (id: string) => {
           <tr
             v-for="person in staffList"
             :key="person.id"
-            class="cursor-pointer border-b border-black/6 last:border-0 hover:bg-black/[0.02]"
+            class="cursor-pointer border-b border-[var(--line)] last:border-0 hover:bg-[var(--surface-2)]"
             @click="selectedStaff = person"
           >
             <td class="px-4 py-3 font-medium text-lyktan-ink">{{ person.name }}</td>
@@ -166,7 +168,7 @@ const onStaffDeleted = (id: string) => {
             <td class="px-4 py-3">
               <span
                 class="rounded-full px-2.5 py-1 text-[0.72rem] font-medium"
-                :class="person.active ? 'bg-emerald-100 text-emerald-700' : 'bg-black/8 text-lyktan-mute'"
+                :class="person.active ? 'bg-[var(--ok-soft)] text-[var(--ok)]' : 'bg-[var(--surface-2)] text-lyktan-mute'"
               >
                 {{ person.active ? 'Aktiv' : 'Inaktiv' }}
               </span>

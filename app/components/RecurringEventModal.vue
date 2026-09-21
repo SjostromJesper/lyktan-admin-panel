@@ -110,12 +110,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         <div class="space-y-4">
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Namn</span>
-            <input v-model="editDraft.name" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="editDraft.name" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Veckodag</span>
-            <select v-model.number="editDraft.weekday" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <select v-model.number="editDraft.weekday" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
               <option v-for="(label, idx) in WEEKDAY_LABELS" :key="idx" :value="idx">{{ label }}</option>
             </select>
           </label>
@@ -123,11 +123,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <div class="grid grid-cols-2 gap-4">
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Start</span>
-              <input v-model="editDraft.startTime" type="time" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <input v-model="editDraft.startTime" type="time" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             </label>
             <label class="block">
               <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Slut</span>
-              <input v-model="editDraft.endTime" type="time" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+              <input v-model="editDraft.endTime" type="time" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
             </label>
           </div>
 
@@ -138,8 +138,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
                 v-for="t in tables"
                 :key="t.id"
                 type="button"
-                class="rounded-full border px-3 py-1 text-sm font-medium transition"
-                :class="editDraft.tableIds.includes(t.id) ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+                class="rounded-lg border px-3 py-1 text-sm font-medium transition"
+                :class="editDraft.tableIds.includes(t.id) ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
                 @click="toggleTable(t.id)"
               >
                 {{ t.name }}
@@ -153,13 +153,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           </label>
         </div>
 
-        <p v-if="error" class="mt-3 text-sm text-red-600">{{ error }}</p>
+        <p v-if="error" class="mt-3 text-sm text-[var(--bad)]">{{ error }}</p>
 
         <div class="mt-5 flex items-center gap-3">
           <button
             type="button"
             :disabled="saving"
-            class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+            class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
             @click="save"
           >
             {{ saving ? 'Sparar…' : 'Spara ändringar' }}
@@ -168,7 +168,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <button
             type="button"
             :disabled="deleting"
-            class="ml-auto text-sm text-red-600 hover:underline disabled:opacity-40"
+            class="ml-auto text-sm text-[var(--bad)] hover:underline disabled:opacity-40"
             @click="deleteEvent"
           >
             Ta bort

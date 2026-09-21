@@ -127,49 +127,49 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 <template>
   <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/30 p-4" @click.self="emit('close')">
     <div class="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-lyktan-paper shadow-xl">
-      <div class="flex items-center justify-between border-b border-black/8 p-6 pb-4">
+      <div class="flex items-center justify-between border-b border-[var(--line)] p-6 pb-4">
         <h1 class="text-lg font-semibold text-lyktan-ink">Redigera produkt</h1>
         <button type="button" aria-label="Stäng" class="text-lyktan-mute hover:text-lyktan-ink" @click="emit('close')">✕</button>
       </div>
 
       <div class="flex-1 overflow-y-auto p-6 pt-4">
         <p v-if="loading" class="text-sm text-lyktan-mute">Laddar…</p>
-        <p v-else-if="loadError" class="text-sm text-red-600">{{ loadError }}</p>
+        <p v-else-if="loadError" class="text-sm text-[var(--bad)]">{{ loadError }}</p>
 
         <form v-else id="edit-product-form" class="grid grid-cols-1 gap-4 sm:grid-cols-2" @submit.prevent="submit">
           <label class="block sm:col-span-2">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Titel</span>
-            <input v-model="form.title" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="form.title" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block sm:col-span-2">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Beskrivning</span>
-            <textarea v-model="form.description" rows="4" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm" placeholder="Valfritt — en rad per stycke" />
+            <textarea v-model="form.description" rows="4" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm" placeholder="Valfritt — en rad per stycke" />
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Pris (kr)</span>
-            <input v-model.number="form.priceKr" type="number" min="0" step="0.01" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model.number="form.priceKr" type="number" min="0" step="0.01" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Jämförelsepris (kr)</span>
-            <input v-model.number="form.compareAtPriceKr" type="number" min="0" step="0.01" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm" placeholder="Valfritt, för att visa rabatt">
+            <input v-model.number="form.compareAtPriceKr" type="number" min="0" step="0.01" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm" placeholder="Valfritt, för att visa rabatt">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Lagerantal</span>
-            <input v-model.number="form.inventoryQuantity" type="number" min="0" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model.number="form.inventoryQuantity" type="number" min="0" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Taggar</span>
-            <input v-model="form.tags" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm" placeholder="kommaseparerat, valfritt">
+            <input v-model="form.tags" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm" placeholder="kommaseparerat, valfritt">
           </label>
 
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Releasedatum</span>
-            <input v-model="form.releaseDate" type="date" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+            <input v-model="form.releaseDate" type="date" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           </label>
 
           <div class="block sm:col-span-2">
@@ -178,8 +178,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
               <label
                 v-for="collection in collections"
                 :key="collection.id"
-                class="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition"
-                :class="form.collectionIds.includes(collection.id) ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+                class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition"
+                :class="form.collectionIds.includes(collection.id) ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
               >
                 <input v-model="form.collectionIds" type="checkbox" :value="collection.id" class="sr-only">
                 {{ collection.title }}
@@ -196,7 +196,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
                 :key="image.id"
                 type="button"
                 class="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border transition"
-                :class="imagesToDelete.has(image.id) ? 'border-red-300 opacity-40' : 'border-black/15'"
+                :class="imagesToDelete.has(image.id) ? 'border-[var(--bad)] opacity-40' : 'border-[var(--line)]'"
                 :title="imagesToDelete.has(image.id) ? 'Ångra borttagning' : 'Ta bort bild'"
                 @click="toggleDeleteImage(image.id)"
               >
@@ -218,16 +218,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
             <div class="flex gap-2">
               <button
                 type="button"
-                class="rounded-full border px-4 py-1.5 text-sm font-medium transition"
-                :class="form.status === 'ACTIVE' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+                class="rounded-lg border px-4 py-1.5 text-sm font-medium transition"
+                :class="form.status === 'ACTIVE' ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
                 @click="form.status = 'ACTIVE'"
               >
                 Aktiv
               </button>
               <button
                 type="button"
-                class="rounded-full border px-4 py-1.5 text-sm font-medium transition"
-                :class="form.status === 'DRAFT' ? 'border-lyktan-ink bg-lyktan-ink text-white' : 'border-black/15 text-lyktan-ink hover:bg-black/[0.04]'"
+                class="rounded-lg border px-4 py-1.5 text-sm font-medium transition"
+                :class="form.status === 'DRAFT' ? 'border-lyktan-ink bg-lyktan-ink text-[var(--paper)]' : 'border-[var(--line)] text-lyktan-ink hover:bg-[var(--surface-2)]'"
                 @click="form.status = 'DRAFT'"
               >
                 Utkast
@@ -238,15 +238,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <div class="block">
             <span class="mb-2 block text-[0.72rem] font-medium text-lyktan-mute">Försäljning</span>
             <label class="flex items-center gap-2 text-sm text-lyktan-ink">
-              <input v-model="form.inStoreOnly" type="checkbox" class="h-4 w-4 rounded border-black/15">
+              <input v-model="form.inStoreOnly" type="checkbox" class="h-4 w-4 rounded border-[var(--line)]">
               Endast i butik (går inte att köpa i webshoppen)
             </label>
           </div>
         </form>
 
-        <p v-if="saveError" class="mt-3 text-sm text-red-600">{{ saveError }}</p>
+        <p v-if="saveError" class="mt-3 text-sm text-[var(--bad)]">{{ saveError }}</p>
 
-        <div v-if="warnings.length" class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+        <div v-if="warnings.length" class="mt-4 rounded-xl border border-[var(--warn)] bg-[var(--warn-soft)] p-4 text-sm text-[var(--warn)]">
           <p class="font-medium">Ändringarna sparades, men något behöver kompletteras i Shopify:</p>
           <ul class="mt-1 list-disc pl-5">
             <li v-for="warning in warnings" :key="warning">{{ warning }}</li>
@@ -254,10 +254,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         </div>
       </div>
 
-      <div class="flex items-center gap-3 border-t border-black/8 p-6 pt-4">
+      <div class="flex items-center gap-3 border-t border-[var(--line)] p-6 pt-4">
         <button
           type="button"
-          class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+          class="inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--line)] px-5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
           @click="emit('close')"
         >
           {{ warnings.length ? 'Stäng' : 'Avbryt' }}
@@ -267,7 +267,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           type="submit"
           form="edit-product-form"
           :disabled="saving"
-          class="ml-auto inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+          class="ml-auto inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
         >
           {{ saving ? 'Sparar…' : 'Spara' }}
         </button>

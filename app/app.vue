@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const { loggedIn, user, clear } = useUserSession()
 const route = useRoute()
-const { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany, canViewProducts, canViewAnalytics } = usePermissions()
+const { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany, canViewProducts, canViewAnalytics, canViewStoreCredit, canViewKortinkop } = usePermissions()
 const { canInstall, install } = useInstallPrompt()
 
 const navLinks = computed(() => {
@@ -15,6 +15,8 @@ const navLinks = computed(() => {
   if (canViewCompany.value) links.push({ to: '/foretag', label: 'Företag' })
   if (canViewProducts.value) links.push({ to: '/produkter', label: 'Produkter' })
   if (canViewAnalytics.value) links.push({ to: '/analytics', label: 'Statistik' })
+  if (canViewStoreCredit.value) links.push({ to: '/store-credit', label: 'Store credit' })
+  if (canViewKortinkop.value) links.push({ to: '/kortinkop', label: 'Kortinköp' })
   return links
 })
 
@@ -37,7 +39,7 @@ const logout = async () => {
 
     <header
       v-if="loggedIn && route.path !== '/login'"
-      class="border-b border-black/8 bg-lyktan-paper"
+      class="border-b border-[var(--line)] bg-lyktan-paper"
     >
       <div class="flex items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div class="flex min-w-0 items-center gap-6">
@@ -59,7 +61,7 @@ const logout = async () => {
           <button
             v-if="canInstall"
             type="button"
-            class="rounded-full border border-black/15 px-4 py-1.5 font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+            class="rounded-lg border border-[var(--line)] px-4 py-1.5 font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
             @click="install"
           >
             Ladda hem appen
@@ -67,7 +69,7 @@ const logout = async () => {
           <span>{{ user?.email }}</span>
           <button
             type="button"
-            class="rounded-full border border-black/15 px-4 py-1.5 font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+            class="rounded-lg border border-[var(--line)] px-4 py-1.5 font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
             @click="logout"
           >
             Logga ut
@@ -77,7 +79,7 @@ const logout = async () => {
         <button
           type="button"
           aria-label="Meny"
-          class="inline-grid h-9 w-9 shrink-0 place-items-center rounded-full text-lyktan-ink transition hover:bg-black/5 lg:hidden"
+          class="inline-grid h-9 w-9 shrink-0 place-items-center rounded-full text-lyktan-ink transition hover:bg-[var(--surface-2)] lg:hidden"
           @click="mobileMenuOpen = !mobileMenuOpen"
         >
           <svg v-if="!mobileMenuOpen" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
@@ -89,32 +91,32 @@ const logout = async () => {
         </button>
       </div>
 
-      <div v-if="mobileMenuOpen" class="border-t border-black/8 px-4 py-3 lg:hidden">
+      <div v-if="mobileMenuOpen" class="border-t border-[var(--line)] px-4 py-3 lg:hidden">
         <nav class="grid gap-1 text-sm">
           <NuxtLink
             v-for="link in navLinks"
             :key="link.to"
             :to="link.to"
-            class="rounded-lg px-2 py-2 text-lyktan-mute hover:bg-black/[0.04] hover:text-lyktan-ink"
+            class="rounded-lg px-2 py-2 text-lyktan-mute hover:bg-[var(--surface-2)] hover:text-lyktan-ink"
             active-class="font-medium text-lyktan-ink"
           >
             {{ link.label }}
           </NuxtLink>
         </nav>
 
-        <div class="mt-3 grid gap-2 border-t border-black/8 pt-3 text-sm text-lyktan-mute">
+        <div class="mt-3 grid gap-2 border-t border-[var(--line)] pt-3 text-sm text-lyktan-mute">
           <span class="px-2">{{ user?.email }}</span>
           <button
             v-if="canInstall"
             type="button"
-            class="rounded-full border border-black/15 px-4 py-1.5 font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+            class="rounded-lg border border-[var(--line)] px-4 py-1.5 font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
             @click="install"
           >
             Ladda hem appen
           </button>
           <button
             type="button"
-            class="rounded-full border border-black/15 px-4 py-1.5 font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+            class="rounded-lg border border-[var(--line)] px-4 py-1.5 font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
             @click="logout"
           >
             Logga ut
@@ -123,7 +125,7 @@ const logout = async () => {
       </div>
     </header>
 
-    <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+    <main class="mx-auto max-w-[1180px] px-4 py-8 sm:px-6">
       <NuxtPage />
     </main>
   </div>

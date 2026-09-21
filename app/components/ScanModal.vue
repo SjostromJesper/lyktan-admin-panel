@@ -140,12 +140,12 @@ const reasonLabel = (reason: VerifyResult['reason']) => {
       </div>
       <canvas ref="canvasEl" class="hidden" />
 
-      <p v-if="cameraError" class="mt-4 text-sm text-red-600">{{ cameraError }}</p>
+      <p v-if="cameraError" class="mt-4 text-sm text-[var(--bad)]">{{ cameraError }}</p>
       <p v-else-if="!result && scanning" class="mt-4 text-center text-sm text-lyktan-mute">Rikta kameran mot QR-koden…</p>
       <p v-else-if="verifying" class="mt-4 text-center text-sm text-lyktan-mute">Kontrollerar…</p>
 
-      <div v-if="result" class="mt-2 rounded-xl p-6 text-center" :class="result.approved ? 'bg-emerald-50' : 'bg-red-50'">
-        <p class="text-2xl font-semibold" :class="result.approved ? 'text-emerald-700' : 'text-red-700'">
+      <div v-if="result" class="mt-2 rounded-xl p-6 text-center" :class="result.approved ? 'bg-[var(--ok-soft)]' : 'bg-[var(--bad-soft)]'">
+        <p class="text-2xl font-semibold" :class="result.approved ? 'text-[var(--ok)]' : 'text-[var(--bad)]'">
           {{ result.approved ? 'Godkänd' : 'Nekad' }}
         </p>
         <p v-if="result.member" class="mt-2 text-sm text-lyktan-ink">
@@ -155,7 +155,7 @@ const reasonLabel = (reason: VerifyResult['reason']) => {
 
         <button
           type="button"
-          class="mt-5 inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black"
+          class="mt-5 inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black"
           @click="scanAgain"
         >
           Skanna igen

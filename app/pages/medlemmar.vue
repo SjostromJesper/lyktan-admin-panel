@@ -106,7 +106,7 @@ const onMemberDeleted = (id: string) => {
         <button
           v-if="canViewMembers"
           type="button"
-          class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+          class="inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--line)] px-5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
           @click="showLogModal = true"
         >
           Logg
@@ -114,7 +114,7 @@ const onMemberDeleted = (id: string) => {
         <button
           v-if="canViewMembers"
           type="button"
-          class="inline-flex min-h-9 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-medium text-lyktan-ink transition hover:bg-black/[0.04]"
+          class="inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--line)] px-5 text-sm font-medium text-lyktan-ink transition hover:bg-[var(--surface-2)]"
           @click="showScanModal = true"
         >
           Skanna medlem
@@ -122,7 +122,7 @@ const onMemberDeleted = (id: string) => {
         <button
           v-if="canEditMembers"
           type="button"
-          class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black"
+          class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black"
           @click="showAddForm = !showAddForm"
         >
           {{ showAddForm ? 'Avbryt' : '+ Ny medlem' }}
@@ -132,48 +132,48 @@ const onMemberDeleted = (id: string) => {
 
     <form
       v-if="showAddForm && canEditMembers"
-      class="mb-8 grid grid-cols-1 gap-4 rounded-2xl border border-black/8 bg-lyktan-paper p-6 sm:grid-cols-2"
+      class="mb-8 grid grid-cols-1 gap-4 rounded-2xl border border-[var(--line)] bg-lyktan-paper p-6 sm:grid-cols-2"
       @submit.prevent="submitAdd"
     >
       <label class="block">
         <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Förnamn</span>
-        <input v-model="newMember.firstName" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+        <input v-model="newMember.firstName" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
       </label>
 
       <label class="block">
         <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Efternamn</span>
-        <input v-model="newMember.lastName" required class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+        <input v-model="newMember.lastName" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
       </label>
 
       <label class="block">
         <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Telefonnummer</span>
-        <input v-model="newMember.phone" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+        <input v-model="newMember.phone" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
       </label>
 
       <label class="block">
         <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">E-post</span>
-        <input v-model="newMember.email" type="email" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+        <input v-model="newMember.email" type="email" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
       </label>
 
       <label class="block">
         <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Ålder</span>
-        <input v-model.number="newMember.age" type="number" min="0" max="130" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+        <input v-model.number="newMember.age" type="number" min="0" max="130" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
       </label>
 
       <label class="block">
         <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Medlemskap</span>
-        <select v-model="newMember.tier" class="w-full rounded-lg border border-black/15 px-3 py-2 text-sm">
+        <select v-model="newMember.tier" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
           <option v-for="(label, key) in TIER_LABELS" :key="key" :value="key">{{ label }}</option>
         </select>
       </label>
 
-      <p v-if="addError" class="sm:col-span-2 text-sm text-red-600">{{ addError }}</p>
+      <p v-if="addError" class="sm:col-span-2 text-sm text-[var(--bad)]">{{ addError }}</p>
 
       <div class="sm:col-span-2">
         <button
           type="submit"
           :disabled="addSaving"
-          class="inline-flex min-h-9 items-center justify-center rounded-full bg-lyktan-ink px-5 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+          class="inline-flex min-h-9 items-center justify-center rounded-lg bg-lyktan-ink px-5 text-sm font-medium text-[var(--paper)] transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
         >
           {{ addSaving ? 'Sparar…' : 'Spara medlem' }}
         </button>
@@ -181,13 +181,13 @@ const onMemberDeleted = (id: string) => {
     </form>
 
     <p v-if="loading" class="text-sm text-lyktan-mute">Laddar…</p>
-    <p v-else-if="loadError" class="text-sm text-red-600">{{ loadError }}</p>
+    <p v-else-if="loadError" class="text-sm text-[var(--bad)]">{{ loadError }}</p>
     <p v-else-if="!members.length" class="text-sm text-lyktan-mute">Inga medlemmar ännu.</p>
 
-    <div v-else class="overflow-x-auto rounded-2xl border border-black/8 bg-lyktan-paper">
+    <div v-else class="overflow-x-auto rounded-2xl border border-[var(--line)] bg-lyktan-paper">
       <table class="w-full min-w-[720px] text-left text-sm">
         <thead>
-          <tr class="border-b border-black/8 text-[0.72rem] font-medium text-lyktan-mute">
+          <tr class="border-b border-[var(--line)] text-[0.72rem] font-medium text-lyktan-mute">
             <th class="px-4 py-3">Namn</th>
             <th class="px-4 py-3">Kontakt</th>
             <th class="px-4 py-3">Ålder</th>
@@ -199,7 +199,7 @@ const onMemberDeleted = (id: string) => {
           <tr
             v-for="member in members"
             :key="member.id"
-            class="cursor-pointer border-b border-black/6 last:border-0 hover:bg-black/[0.02]"
+            class="cursor-pointer border-b border-[var(--line)] last:border-0 hover:bg-[var(--surface-2)]"
             @click="selectedMember = member"
           >
             <td class="px-4 py-3 font-medium text-lyktan-ink">
@@ -207,9 +207,9 @@ const onMemberDeleted = (id: string) => {
                 <span
                   class="h-2 w-2 shrink-0 rounded-full"
                   :class="{
-                    green: 'bg-emerald-500',
-                    yellow: 'bg-amber-400',
-                    red: 'bg-red-500'
+                    green: 'bg-[var(--ok-soft)]0',
+                    yellow: 'bg-[var(--warn)]',
+                    red: 'bg-[var(--bad-soft)]0'
                   }[membershipDotColor(member.expiry_date)]"
                 />
                 {{ member.first_name }} {{ member.last_name }}
@@ -224,7 +224,7 @@ const onMemberDeleted = (id: string) => {
             <td class="px-4 py-3">
               <span
                 class="rounded-full px-2.5 py-1 text-[0.72rem] font-medium"
-                :class="(daysLeft(member.expiry_date) ?? -1) >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-black/8 text-lyktan-mute'"
+                :class="(daysLeft(member.expiry_date) ?? -1) >= 0 ? 'bg-[var(--ok-soft)] text-[var(--ok)]' : 'bg-[var(--surface-2)] text-lyktan-mute'"
               >
                 {{ membershipStatusLabel(member.expiry_date) }}
               </span>

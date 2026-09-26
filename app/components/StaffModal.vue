@@ -17,6 +17,7 @@ type Staff = {
   analytics_access?: AccessLevel
   store_credit_access?: AccessLevel
   kortinkop_access?: AccessLevel
+  events_access?: AccessLevel
   created_at: string
 }
 
@@ -101,7 +102,8 @@ const accessDraft = ref({
   productsAccess: 'none' as AccessLevel,
   analyticsAccess: 'none' as AccessLevel,
   storeCreditAccess: 'none' as AccessLevel,
-  kortinkopAccess: 'none' as AccessLevel
+  kortinkopAccess: 'none' as AccessLevel,
+  eventsAccess: 'none' as AccessLevel
 })
 
 watch(staff, (s) => {
@@ -117,7 +119,8 @@ watch(staff, (s) => {
     productsAccess: s.products_access || 'none',
     analyticsAccess: s.analytics_access || 'none',
     storeCreditAccess: s.store_credit_access || 'none',
-    kortinkopAccess: s.kortinkop_access || 'none'
+    kortinkopAccess: s.kortinkop_access || 'none',
+    eventsAccess: s.events_access || 'none'
   }
 }, { immediate: true })
 
@@ -308,6 +311,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
               <label class="block">
                 <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Kortinköp</span>
                 <select v-model="accessDraft.kortinkopAccess" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
+                  <option v-for="(label, key) in ACCESS_LABELS" :key="key" :value="key">{{ label }}</option>
+                </select>
+              </label>
+              <label class="block">
+                <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Event</span>
+                <select v-model="accessDraft.eventsAccess" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
                   <option v-for="(label, key) in ACCESS_LABELS" :key="key" :value="key">{{ label }}</option>
                 </select>
               </label>

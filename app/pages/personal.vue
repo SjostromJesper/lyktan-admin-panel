@@ -16,6 +16,7 @@ type Staff = {
   products_access?: AccessLevel
   analytics_access?: AccessLevel
   kortinkop_access?: AccessLevel
+  events_access?: AccessLevel
   created_at: string
 }
 
@@ -34,7 +35,8 @@ const accessSummary = (person: Staff) => {
     person.company_access && person.company_access !== 'none' && `Företag (${ACCESS_LABELS[person.company_access]})`,
     person.products_access && person.products_access !== 'none' && `Produkter (${ACCESS_LABELS[person.products_access]})`,
     person.analytics_access && person.analytics_access !== 'none' && `Statistik (${ACCESS_LABELS[person.analytics_access]})`,
-    person.kortinkop_access && person.kortinkop_access !== 'none' && `Kortinköp (${ACCESS_LABELS[person.kortinkop_access]})`
+    person.kortinkop_access && person.kortinkop_access !== 'none' && `Kortinköp (${ACCESS_LABELS[person.kortinkop_access]})`,
+    person.events_access && person.events_access !== 'none' && `Event (${ACCESS_LABELS[person.events_access]})`
   ].filter(Boolean)
   return parts.length ? parts.join(', ') : 'Inloggning, ingen behörighet'
 }

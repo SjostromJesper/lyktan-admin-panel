@@ -1,4 +1,4 @@
-const ROUTE_PERMISSIONS: Record<string, 'canViewMembers' | 'canViewStaff' | 'canViewSchedule' | 'canViewOrders' | 'canViewBookings' | 'canViewCompany' | 'canViewProducts' | 'canViewAnalytics' | 'canViewStoreCredit'> = {
+const ROUTE_PERMISSIONS: Record<string, 'canViewMembers' | 'canViewStaff' | 'canViewSchedule' | 'canViewOrders' | 'canViewBookings' | 'canViewCompany' | 'canViewProducts' | 'canViewAnalytics' | 'canViewStoreCredit' | 'canViewKortinkop' | 'canViewEvents'> = {
   '/medlemmar': 'canViewMembers',
   '/personal': 'canViewStaff',
   '/schema': 'canViewSchedule',
@@ -8,7 +8,9 @@ const ROUTE_PERMISSIONS: Record<string, 'canViewMembers' | 'canViewStaff' | 'can
   '/foretag': 'canViewCompany',
   '/produkter': 'canViewProducts',
   '/analytics': 'canViewAnalytics',
-  '/store-credit': 'canViewStoreCredit'
+  '/store-credit': 'canViewStoreCredit',
+  '/kortinkop': 'canViewKortinkop',
+  '/event': 'canViewEvents'
 }
 
 export default defineNuxtRouteMiddleware((to) => {
@@ -25,8 +27,8 @@ export default defineNuxtRouteMiddleware((to) => {
   const requiredPermission = ROUTE_PERMISSIONS[to.path]
 
   if (requiredPermission) {
-    const { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany, canViewProducts, canViewAnalytics, canViewStoreCredit } = usePermissions()
-    const has = { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany, canViewProducts, canViewAnalytics, canViewStoreCredit }[requiredPermission]
+    const { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany, canViewProducts, canViewAnalytics, canViewStoreCredit, canViewKortinkop, canViewEvents } = usePermissions()
+    const has = { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany, canViewProducts, canViewAnalytics, canViewStoreCredit, canViewKortinkop, canViewEvents }[requiredPermission]
 
     if (!has.value) {
       return navigateTo('/')

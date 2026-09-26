@@ -8,7 +8,7 @@ type CartEvent = {
   created_at: string
 }
 
-const { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany, canViewProducts, canViewAnalytics, canViewStoreCredit } = usePermissions()
+const { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany, canViewProducts, canViewAnalytics, canViewStoreCredit, canViewKortinkop, canViewEvents } = usePermissions()
 
 const cartEvents = ref<CartEvent[]>([])
 let cartActivityTimer: ReturnType<typeof setInterval> | null = null
@@ -22,7 +22,13 @@ const loadCartActivity = async () => {
   }
 }
 
-const formatEventTime = (value: string) => new Date(value).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })
+const formatEventTime = (value: string) => {
+  const date = new Date(value)
+  const time = date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })
+  const isToday = date.toDateString() === new Date().toDateString()
+  const day = isToday ? 'Idag' : date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })
+  return `${day} ${time}`
+}
 
 onMounted(() => {
   loadCartActivity()
@@ -45,6 +51,8 @@ const tools = computed(() => {
   if (canViewProducts.value) items.push({ to: '/produkter', title: 'Produkter', description: 'Skapa och hantera produkter i webshoppen.' })
   if (canViewAnalytics.value) items.push({ to: '/analytics', title: 'Statistik', description: 'Besökare, sidvisningar och trafikkällor för webshoppen.' })
   if (canViewStoreCredit.value) items.push({ to: '/store-credit', title: 'Store credit', description: 'Ge kunder tillgodo och fritt tillträde till event.' })
+  if (canViewKortinkop.value) items.push({ to: '/kortinkop', title: 'Kortinköp', description: 'Värdera och köp in lösa kort från kunder.' })
+  if (canViewEvents.value) items.push({ to: '/event', title: 'Event', description: 'Biljettlistor, incheckning och leverans för event.' })
   return items
 })
 </script>

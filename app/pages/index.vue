@@ -1,5 +1,37 @@
 <script setup lang="ts">
+type CartEvent = {
+  id: string
+  product_title: string
+  variant_title: string | null
+  quantity: number
+  price_kr: number | null
+  created_at: string
+}
+
 const { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany, canViewProducts, canViewAnalytics, canViewStoreCredit } = usePermissions()
+
+const cartEvents = ref<CartEvent[]>([])
+let cartActivityTimer: ReturnType<typeof setInterval> | null = null
+
+const loadCartActivity = async () => {
+  try {
+    const res = await $fetch<{ events: CartEvent[] }>('/api/cart-activity')
+    cartEvents.value = res.events
+  } catch {
+    // Silent — this is a nice-to-have live feed, not core functionality.
+  }
+}
+
+const formatEventTime = (value: string) => new Date(value).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })
+
+onMounted(() => {
+  loadCartActivity()
+  cartActivityTimer = setInterval(loadCartActivity, 6000)
+})
+
+onBeforeUnmount(() => {
+  if (cartActivityTimer) clearInterval(cartActivityTimer)
+})
 
 const tools = computed(() => {
   const items = []
@@ -20,6 +52,20 @@ const tools = computed(() => {
 <template>
   <div>
     <h1 class="mb-6 text-xl font-semibold text-lyktan-ink">Butik Lyktan · Admin</h1>
+
+    <div v-if="cartEvents.length" class="panel mb-6">
+      <h2>Nyss i kundvagnen</h2>
+      <ul class="grid gap-2 text-sm">
+        <li v-for="ev in cartEvents" :key="ev.id" class="flex flex-wrap items-baseline gap-x-2">
+          <span class="mono" style="color:var(--muted)">{{ formatEventTime(ev.created_at) }}</span>
+          <span>
+            <template v-if="ev.quantity > 1">{{ ev.quantity }}×</template>
+            {{ ev.product_title }}<template v-if="ev.variant_title"> ({{ ev.variant_title }})</template>
+            lades i en kundvagn
+          </span>
+        </li>
+      </ul>
+    </div>
 
     <div v-if="tools.length" class="grid grid-cols-1 gap-4 sm:grid-cols-3">
       <NuxtLink

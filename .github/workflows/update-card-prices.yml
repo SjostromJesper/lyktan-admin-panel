@@ -1,0 +1,22 @@
+# Hämtar Cardmarkets prisguide varje dag (guiden uppdateras ca 01:00 svensk tid).
+# Kräver repo-secrets SUPABASE_URL och SUPABASE_SERVICE_ROLE_KEY.
+name: Update card prices
+
+on:
+  schedule:
+    - cron: '30 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  prices:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/load-prices.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

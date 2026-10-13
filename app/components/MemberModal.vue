@@ -100,6 +100,26 @@ const undoEvent = async (undoEventId: string) => {
 const renewing = ref(false)
 const renewError = ref('')
 
+const toIsoDate = (d: Date) => d.toISOString().slice(0, 10)
+
+// Mirrors the server's own default (renew.post.ts): still active → extend
+// from the current expiry, expired/never activated → start from today.
+// Shown as an editable, pre-filled field so staff can see exactly what
+// date a renewal will count from, and override it — e.g. to honor a
+// member's old expiry when they renew a few weeks late instead of losing
+// that time to a fresh "start from today".
+const defaultStartDate = (expiryDate: string | null) => {
+  const today = toIsoDate(new Date())
+  if (expiryDate && expiryDate >= today) return expiryDate
+  return today
+}
+
+const startDate = ref(defaultStartDate(member.value.expiry_date))
+
+watch(member, (m) => {
+  startDate.value = defaultStartDate(m.expiry_date)
+})
+
 const renew = async (months: number) => {
   renewing.value = true
   renewError.value = ''
@@ -107,7 +127,7 @@ const renew = async (months: number) => {
   try {
     const res = await $fetch<{ member: Member }>(`/api/members/${member.value.id}/renew`, {
       method: 'POST',
-      body: { months }
+      body: { months, startDate: startDate.value }
     })
     member.value = res.member
     emit('updated', res.member)
@@ -214,6 +234,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <span v-if="member.expiry_date">Giltigt till {{ member.expiry_date }}.</span>
           <span v-else>Inte aktiverat ännu.</span>
           <span v-if="member.renewed_at"> Senast förnyat {{ member.renewed_at }}.</span>
+        </p>
+
+        <label class="mb-4 block max-w-[220px]">
+          <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Startdatum för förnyelsen</span>
+          <input v-model="startDate" type="date" class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">
+        </label>
+        <p class="-mt-3 mb-4 text-[0.72rem] text-lyktan-mute">
+          Förifyllt med dagens datum, eller nuvarande giltighetsdatum om medlemskapet fortfarande är aktivt. Ändra till t.ex. det gamla giltighetsdatumet om medlemmen förnyar sent och inte ska förlora tid.
         </p>
 
         <div class="flex flex-wrap gap-3">

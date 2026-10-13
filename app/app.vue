@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const { loggedIn, user, clear } = useUserSession()
 const route = useRoute()
-const { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany, canViewProducts, canViewAnalytics, canViewStoreCredit, canViewKortinkop, canViewEvents } = usePermissions()
+const { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany, canViewProducts, canViewAnalytics, canViewStoreCredit, canViewKortinkop, canViewEvents, canViewScan } = usePermissions()
 const { canInstall, install } = useInstallPrompt()
 
 const navLinks = computed(() => {
@@ -18,6 +18,8 @@ const navLinks = computed(() => {
   if (canViewStoreCredit.value) links.push({ to: '/store-credit', label: 'Store credit' })
   if (canViewKortinkop.value) links.push({ to: '/kortinkop', label: 'Kortinköp' })
   if (canViewEvents.value) links.push({ to: '/event', label: 'Event' })
+  if (canViewScan.value) links.push({ to: '/skanning', label: 'Skanning' })
+  if (canViewScan.value) links.push({ to: '/singlar', label: 'Singlar' })
   return links
 })
 

@@ -8,7 +8,7 @@ type CartEvent = {
   created_at: string
 }
 
-const { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany, canViewProducts, canViewAnalytics, canViewStoreCredit, canViewKortinkop, canViewEvents } = usePermissions()
+const { canViewMembers, canViewStaff, canViewSchedule, canViewOrders, canViewBookings, canViewCompany, canViewProducts, canViewAnalytics, canViewStoreCredit, canViewKortinkop, canViewEvents, canViewScan } = usePermissions()
 
 const cartEvents = ref<CartEvent[]>([])
 let cartActivityTimer: ReturnType<typeof setInterval> | null = null
@@ -53,6 +53,7 @@ const tools = computed(() => {
   if (canViewStoreCredit.value) items.push({ to: '/store-credit', title: 'Store credit', description: 'Ge kunder tillgodo och fritt tillträde till event.' })
   if (canViewKortinkop.value) items.push({ to: '/kortinkop', title: 'Kortinköp', description: 'Värdera och köp in lösa kort från kunder.' })
   if (canViewEvents.value) items.push({ to: '/event', title: 'Event', description: 'Biljettlistor, incheckning och leverans för event.' })
+  if (canViewScan.value) items.push({ to: '/skanning', title: 'Skanning', description: 'Skanna in kortbuntar, identifiera och lägg ut singlar.' })
   return items
 })
 </script>

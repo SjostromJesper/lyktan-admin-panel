@@ -25,3 +25,7 @@ supabase/.temp
 .env
 .env.*
 !.env.example
+
+# Generated
+.netlify
+eng.traineddata

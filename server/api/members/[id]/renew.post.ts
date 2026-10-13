@@ -1,10 +1,40 @@
 type RenewBody = {
   months?: number
+  startDate?: string
 }
 
 const VALID_MONTHS = [1, 6, 12]
 
 const toIsoDate = (d: Date) => d.toISOString().slice(0, 10)
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+
+// Sanity bounds on a manually-entered start date — wide enough to cover a
+// late renewal (the actual use case: honoring an expiry from weeks or a
+// couple of months back) without allowing an obvious fat-finger mistake.
+const MAX_PAST_DAYS = 730
+const MAX_FUTURE_DAYS = 365
+
+const parseCustomStartDate = (value: string, today: Date): Date => {
+  if (!ISO_DATE_RE.test(value)) {
+    throw createError({ statusCode: 400, statusMessage: 'Ogiltigt startdatum' })
+  }
+
+  const parsed = new Date(`${value}T00:00:00Z`)
+
+  if (Number.isNaN(parsed.getTime())) {
+    throw createError({ statusCode: 400, statusMessage: 'Ogiltigt startdatum' })
+  }
+
+  const dayMs = 24 * 60 * 60 * 1000
+  const diffDays = (parsed.getTime() - today.getTime()) / dayMs
+
+  if (diffDays < -MAX_PAST_DAYS || diffDays > MAX_FUTURE_DAYS) {
+    throw createError({ statusCode: 400, statusMessage: 'Startdatumet ligger för långt bort' })
+  }
+
+  return parsed
+}
 
 export default defineEventHandler(async (event) => {
   const admin = await requireAccess(event, 'members', 'edit')
@@ -41,15 +71,23 @@ export default defineEventHandler(async (event) => {
   const today = new Date()
   today.setUTCHours(0, 0, 0, 0)
 
-  // Still active → extend from the current expiry. Expired (or never
-  // activated) → start fresh from today, per how renewals work in-store.
-  let base = today
   const currentExpiry = (existing as any).expiry_date as string | null
 
-  if (currentExpiry) {
-    const currentExpiryDate = new Date(`${currentExpiry}T00:00:00Z`)
-    if (currentExpiryDate >= today) {
-      base = currentExpiryDate
+  // Staff can override the start date — e.g. a member renewing a few weeks
+  // late shouldn't lose that time if the shop wants to honor their old
+  // expiry instead of starting fresh from today.
+  let base: Date
+  if (body?.startDate) {
+    base = parseCustomStartDate(body.startDate, today)
+  } else {
+    // Still active → extend from the current expiry. Expired (or never
+    // activated) → start fresh from today, per how renewals work in-store.
+    base = today
+    if (currentExpiry) {
+      const currentExpiryDate = new Date(`${currentExpiry}T00:00:00Z`)
+      if (currentExpiryDate >= today) {
+        base = currentExpiryDate
+      }
     }
   }
 

@@ -103,6 +103,11 @@ const kr = (n: number) => `${n.toLocaleString('sv-SE', { minimumFractionDigits: 
       <label class="block">
         <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Pris inkl. moms (kr)</span>
         <input v-model.number="price" type="number" min="0" step="1" inputmode="decimal" class="w-full rounded-lg border border-[var(--accent)] bg-[var(--surface)] px-3 py-2 text-sm font-semibold" @input="fromPrice">
+        <!-- Margin = profit as a share of the price excluding VAT -->
+        <span v-if="breakdown?.margin != null" class="mt-1 block text-[0.8rem] font-semibold" :style="{ color: breakdown.margin < 0 ? 'var(--bad)' : 'var(--ok)' }" aria-live="polite">
+          Marginal {{ breakdown.margin.toLocaleString('sv-SE') }} %
+          <span class="font-normal text-lyktan-mute">· vinst {{ kr(breakdown.profit!) }}</span>
+        </span>
       </label>
     </div>
 
@@ -111,9 +116,9 @@ const kr = (n: number) => `${n.toLocaleString('sv-SE', { minimumFractionDigits: 
     </label>
 
     <p v-if="breakdown" class="mt-2 text-[0.8rem] text-lyktan-mute" aria-live="polite">
-      {{ kr(breakdown.exVat) }} exkl. moms · moms {{ kr(breakdown.vat) }}<template v-if="breakdown.profit != null"> · vinst {{ kr(breakdown.profit) }} ({{ breakdown.margin }} % av priset exkl. moms)</template>
+      {{ kr(breakdown.exVat) }} exkl. moms · moms {{ kr(breakdown.vat) }}
     </p>
-    <p class="mt-1 text-[0.72rem] text-lyktan-mute">Påslaget läggs på inköpspriset exkl. moms, sedan läggs momsen på. Du kan också skriva in önskat pris, så räknas påslaget ut.</p>
+    <p class="mt-1 text-[0.72rem] text-lyktan-mute">Påslaget läggs på inköpspriset exkl. moms, sedan läggs momsen på. Marginalen är vinsten som andel av priset exkl. moms. Du kan också skriva in önskat pris, så räknas påslaget ut.</p>
 
     <div class="mt-3 flex items-center gap-3">
       <button type="button" class="btn primary" :disabled="!canApprove" @click="approve">Godkänn och använd priset</button>

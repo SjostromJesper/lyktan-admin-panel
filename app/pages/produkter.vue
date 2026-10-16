@@ -298,6 +298,10 @@ const toggleSignups = async (product: Product) => {
             <p v-if="generateDescriptionError" class="mt-1 text-[0.72rem] text-[var(--bad)]">{{ generateDescriptionError }}</p>
           </div>
 
+          <div class="sm:col-span-2">
+            <PriceCalculator @approve="newProduct.priceKr = $event" />
+          </div>
+
           <label class="block">
             <span class="mb-1 block text-[0.72rem] font-medium text-lyktan-mute">Pris (kr)</span>
             <input v-model.number="newProduct.priceKr" type="number" min="0" step="0.01" required class="w-full rounded-lg border border-[var(--line)] px-3 py-2 text-sm">

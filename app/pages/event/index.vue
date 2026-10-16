@@ -6,6 +6,7 @@ type EventItem = {
   status: string
   imageUrl: string | null
   dateAndTime: string | null
+  occasions: number
 }
 
 const view = ref<'aktiva' | 'historik'>('aktiva')
@@ -78,7 +79,7 @@ const formatDate = (value: string | null) =>
           <img v-if="ev.imageUrl" :src="ev.imageUrl" :alt="ev.title" class="h-full w-full object-cover">
         </div>
         <div class="p-4">
-          <p class="mono text-[0.72rem]" style="color:var(--muted)">{{ formatDate(ev.dateAndTime) }}</p>
+          <p class="mono text-[0.72rem]" style="color:var(--muted)">{{ ev.occasions > 1 ? `${ev.occasions} tillfällen` : formatDate(ev.dateAndTime) }}</p>
           <h2 class="mt-1 font-medium text-lyktan-ink">{{ ev.title }}</h2>
         </div>
       </NuxtLink>

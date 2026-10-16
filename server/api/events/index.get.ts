@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
           status
           featuredImage { url altText }
           dateAndTime: metafield(namespace: "custom", key: "date_and_time") { value }
+          variants(first: 50) { nodes { title } }
         }
       }
     }
@@ -23,7 +24,9 @@ export default defineEventHandler(async (event) => {
     handle: product.handle,
     status: product.status,
     imageUrl: product.featuredImage?.url ?? null,
-    dateAndTime: product.dateAndTime?.value ?? null
+    dateAndTime: product.dateAndTime?.value ?? null,
+    // An event with several variants (e.g. four play times) has that many occasions.
+    occasions: product.variants?.nodes?.length > 1 ? product.variants.nodes.length : 0
   }))
 
   return { events }

@@ -7,7 +7,7 @@ type OrderNode = {
   email: string | null
   phone: string | null
   customer: { firstName: string | null, lastName: string | null } | null
-  lineItems: { nodes: { title: string, quantity: number, variant: { title: string } | null, product: { id: string } | null }[] }
+  lineItems: { nodes: { title: string, quantity: number, variant: { id: string, legacyResourceId: string, title: string } | null, product: { id: string } | null }[] }
 }
 
 export default defineEventHandler(async (event) => {
@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
         description
         featuredImage { url altText }
         dateAndTime: metafield(namespace: "custom", key: "date_and_time") { value }
+        variants(first: 50) { nodes { legacyResourceId title inventoryQuantity } }
       }
     }
   `, { id: productGid })
@@ -64,7 +65,7 @@ export default defineEventHandler(async (event) => {
             email
             phone
             customer { firstName lastName }
-            lineItems(first: 20) { nodes { title quantity variant { title } product { id } } }
+            lineItems(first: 20) { nodes { title quantity variant { id legacyResourceId title } product { id } } }
           }
         }
       }
@@ -90,26 +91,43 @@ export default defineEventHandler(async (event) => {
 
   const checkedInOrderIds = new Set((checkins ?? []).map((c: any) => c.shopify_order_id))
 
+  // One row per order *and* occasion: an order holding tickets for two play times shows up
+  // under both, each with its own quantity.
   const attendees = orders
-    .map((order) => {
+    .flatMap((order) => {
       const ticketLines = order.lineItems.nodes.filter((li) => li.product?.id === productGid)
-      if (!ticketLines.length) return null
+      if (!ticketLines.length) return []
 
-      return {
-        orderId: order.legacyResourceId,
-        orderName: order.name,
-        createdAt: order.createdAt,
-        customerName: [order.customer?.firstName, order.customer?.lastName].filter(Boolean).join(' ') || null,
-        email: order.email,
-        phone: order.phone,
-        variantTitle: ticketLines.map((li) => li.variant?.title).filter((t) => t && t !== 'Default Title').join(', ') || null,
-        quantity: ticketLines.reduce((sum, li) => sum + li.quantity, 0),
-        fulfillmentStatus: order.displayFulfillmentStatus,
-        checkedIn: checkedInOrderIds.has(order.legacyResourceId)
+      const byVariant = new Map<string, typeof ticketLines>()
+      for (const line of ticketLines) {
+        const key = line.variant?.legacyResourceId ?? 'none'
+        byVariant.set(key, [...(byVariant.get(key) ?? []), line])
       }
+
+      return [...byVariant.entries()].map(([variantId, lines]) => {
+        const title = lines[0]?.variant?.title
+        return {
+          orderId: order.legacyResourceId,
+          orderName: order.name,
+          createdAt: order.createdAt,
+          customerName: [order.customer?.firstName, order.customer?.lastName].filter(Boolean).join(' ') || null,
+          email: order.email,
+          phone: order.phone,
+          variantId: variantId === 'none' ? null : variantId,
+          variantTitle: title && title !== 'Default Title' ? title : null,
+          quantity: lines.reduce((sum, li) => sum + li.quantity, 0),
+          fulfillmentStatus: order.displayFulfillmentStatus,
+          checkedIn: checkedInOrderIds.has(order.legacyResourceId)
+        }
+      })
     })
-    .filter((a): a is NonNullable<typeof a> => a !== null)
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+
+  // Occasions = the product's variants, in the order they were set up in Shopify.
+  const variants: { legacyResourceId: string, title: string, inventoryQuantity: number | null }[] = product.variants?.nodes ?? []
+  const occasions = variants.length > 1
+    ? variants.map((v) => ({ id: v.legacyResourceId, title: v.title, inventory: v.inventoryQuantity }))
+    : []
 
   return {
     event: {
@@ -121,6 +139,7 @@ export default defineEventHandler(async (event) => {
       imageUrl: product.featuredImage?.url ?? null,
       dateAndTime: product.dateAndTime?.value ?? null
     },
+    occasions,
     attendees
   }
 })
